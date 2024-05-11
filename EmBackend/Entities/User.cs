@@ -21,4 +21,8 @@ public class User
     [BsonElement("email")]
     [JsonPropertyName("email")]
     public required string Email { get; set; }
+    
+    [BsonElement("password")]
+    [JsonPropertyName("password")]
+    public required string Password { get; set; }
 }

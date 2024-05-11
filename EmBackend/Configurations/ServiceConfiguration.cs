@@ -1,13 +1,19 @@
-using EmBackend.Entities;
-using EmBackend.Repositories;
-using EmBackend.Repositories.Users;
+using EmBackend.Helpers;
+using EmBackend.Services;
+using EmBackend.Services.HashService;
 
 namespace EmBackend.Configurations;
 
 public static class ServiceConfiguration
 {
-    public static void ConfigureRepositories(this IServiceCollection services)
+    public static void ConfigureDatabase(this IServiceCollection services, ConfigurationManager builder)
     {
-        services.AddScoped<IRepository<User>, UserRepository>();
+        services.Configure<DatabaseSettings>(builder.GetSection("MongoDatabase"));
+        services.AddSingleton<MongoDbService>();
+    }
+    
+    public static void ConfigureHashService(this IServiceCollection services)
+    {
+        services.AddScoped<IHashService, HashService>();
     }
 }
