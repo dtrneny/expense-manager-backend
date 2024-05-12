@@ -16,4 +16,9 @@ public static class ServiceConfiguration
     {
         services.AddScoped<IHashService, HashService>();
     }
+    
+    public static void ConfigureJwtService(this IServiceCollection services)
+    {
+        services.AddScoped<JwtService>();
+    }
 }

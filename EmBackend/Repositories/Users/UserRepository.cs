@@ -18,6 +18,8 @@ public class UserRepository: IRepository<User>
     
     public async Task<User?> Create(User user)
     {
+        // TODO: check uniqueness of email
+
         var hashedPassword = _hashService.Hash(user.Password);
 
         if (hashedPassword == null) { return null; }
@@ -41,6 +43,12 @@ public class UserRepository: IRepository<User>
     // {
     //     throw new NotImplementedException();
     // }
+    
+    public async Task<User?> GetOne(FilterDefinition<User> filter)
+    {
+        var users = await GetAll(filter);
+        return users?.FirstOrDefault();
+    }
 
     public async Task<IEnumerable<User>> GetAll()
     {
@@ -52,7 +60,7 @@ public class UserRepository: IRepository<User>
         
         return await users;
     }
-    
+
     public async Task<IEnumerable<User>> GetAll(FilterDefinition<User> filter)
     {
         if (_usersCollection == null) { return []; }
