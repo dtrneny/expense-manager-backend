@@ -1,4 +1,4 @@
-using EmBackend.Helpers;
+using EmBackend.Models.Helpers;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 

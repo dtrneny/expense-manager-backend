@@ -16,7 +16,7 @@ public class Movement
     
     [BsonElement("amount")]
     [JsonPropertyName("amount")]
-    public required int Amount { get; set; }
+    public required double Amount { get; set; }
     
     [BsonElement("label")]
     [JsonPropertyName("label")]

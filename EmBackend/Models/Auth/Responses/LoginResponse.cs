@@ -1,4 +1,4 @@
-namespace EmBackend.Payloads.Auth;
+namespace EmBackend.Models.Auth.Responses;
 
 public record LoginResponse (
     string AccessToken,

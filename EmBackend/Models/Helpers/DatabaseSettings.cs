@@ -1,4 +1,4 @@
-namespace EmBackend.Helpers;
+namespace EmBackend.Models.Helpers;
 
 public class DatabaseSettings
 {

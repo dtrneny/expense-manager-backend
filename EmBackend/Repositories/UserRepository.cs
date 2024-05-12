@@ -18,8 +18,6 @@ public class UserRepository: IRepository<User>
     
     public async Task<User?> Create(User user)
     {
-        // TODO: check uniqueness of email
-
         var hashedPassword = _hashService.Hash(user.Password);
 
         if (hashedPassword == null) { return null; }
@@ -33,16 +31,6 @@ public class UserRepository: IRepository<User>
         
         return user;
     }
-
-    // public Task<User?> Update(User user)
-    // {
-    //     throw new NotImplementedException();
-    // }
-    //
-    // public Task<User?> GetById(string id)
-    // {
-    //     throw new NotImplementedException();
-    // }
     
     public async Task<User?> GetOne(FilterDefinition<User> filter)
     {

@@ -1,5 +1,6 @@
 using EmBackend.Entities;
-using EmBackend.Payloads.Users;
+using EmBackend.Models.Users.Requests;
+using EmBackend.Models.Users.Responses;
 using EmBackend.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,17 +21,24 @@ public class UsersController: ControllerBase
     
     [AllowAnonymous]
     [HttpPost]
-    public async Task<ActionResult<UserResponse>> CreateUser(User user)
+    public async Task<ActionResult<PostUserResponse>> PostUser(PostUserRequest data)
     {
+        var user = new User {
+            Firstname = data.Firstname,
+            Lastname = data.Lastname,
+            Email = data.Email,
+            Password = data.Password
+        };
+        
         var result = await _userRepository.Create(user);
 
-        if (user == null) { return StatusCode(500); }
+        if (result == null) { return StatusCode(500); }
 
         return Ok(result);
     }
     
     [HttpGet]
-    public async Task<ActionResult<UsersResponse>> GetUsers()
+    public async Task<ActionResult<GetUsersResponse>> GetUsers()
     {
         var result = await _userRepository.GetAll();
         return Ok(result.ToList());

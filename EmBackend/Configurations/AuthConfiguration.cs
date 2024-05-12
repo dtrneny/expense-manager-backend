@@ -1,5 +1,5 @@
 using System.Text;
-using EmBackend.Helpers;
+using EmBackend.Models.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 

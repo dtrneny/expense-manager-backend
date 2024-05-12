@@ -1,5 +1,7 @@
 using EmBackend.Entities;
-using EmBackend.Payloads.Movements;
+using EmBackend.Models.Movements;
+using EmBackend.Models.Movements.Requests;
+using EmBackend.Models.Movements.Responses;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Auth;
 using Microsoft.AspNetCore.Authorization;
@@ -22,22 +24,24 @@ public class MovementsController: ControllerBase
     }
     
     [HttpPost]
-    public async Task<ActionResult<CreateResponse>> CreateMovement(CreateRequest data)
+    public async Task<ActionResult<PostMovementResponse>> PostMovement(PostMovementRequest data)
     {
         var userId = _authRepository.JwtService.GetUserIdFromClaimsPrincipal(HttpContext.User);
 
         if (userId == null) { return Unauthorized(); }
         
-        var result = await _movementRepository.Create(new Movement()
-        {
-            Id = null,
+        var movement = new Movement {
             UserId = userId,
             Amount = data.Amount,
             Label = data.Label
-        });
+        };
+        
+        var result = await _movementRepository.Create(movement);
     
-        if (result == null) { return StatusCode(500); }
+        if (result?.Id == null) { return StatusCode(500); }
+
+        var movementDto = new MovementDto(result.Id, result.UserId, result.Amount, result.Label);
     
-        return Ok(result);
+        return Ok(new PostMovementResponse(movementDto));
     }
 }

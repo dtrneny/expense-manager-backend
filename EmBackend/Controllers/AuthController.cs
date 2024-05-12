@@ -1,5 +1,6 @@
-using EmBackend.Payloads.Auth;
 using EmBackend.Entities;
+using EmBackend.Models.Auth.Requests;
+using EmBackend.Models.Auth.Responses;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Auth;
 using EmBackend.Services.HashService;

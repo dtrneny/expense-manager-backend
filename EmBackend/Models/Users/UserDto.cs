@@ -1,4 +1,4 @@
-namespace EmBackend.DTOs;
+namespace EmBackend.Models.Users;
 
 public record UserDto (
     string Id,

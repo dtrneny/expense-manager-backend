@@ -1,4 +1,4 @@
-using EmBackend.Helpers;
+using EmBackend.Models.Helpers;
 using EmBackend.Services;
 using EmBackend.Services.HashService;
 
