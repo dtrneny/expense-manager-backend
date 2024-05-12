@@ -1,7 +1,6 @@
 using EmBackend.Entities;
+using EmBackend.Payloads.Users;
 using EmBackend.Repositories;
-using EmBackend.Repositories.Auth;
-using EmBackend.Repositories.Users;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,32 +12,27 @@ namespace EmBackend.Controllers;
 public class UsersController: ControllerBase
 {
     private readonly IRepository<User> _userRepository;
-    private readonly AuthRepository _authRepository;
     
-    public UsersController(IRepository<User> userRepository, AuthRepository authRepository)
+    public UsersController(IRepository<User> userRepository)
     {
         _userRepository = userRepository;
-        _authRepository = authRepository;
     }
     
     [AllowAnonymous]
     [HttpPost]
-    public async Task<ActionResult<User?>> CreateUser(User user)
+    public async Task<ActionResult<UserResponse>> CreateUser(User user)
     {
         var result = await _userRepository.Create(user);
 
-        if (user == null)
-        {
-            return Ok("Not so ok");
-        }
+        if (user == null) { return StatusCode(500); }
 
         return Ok(result);
     }
     
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+    public async Task<ActionResult<UsersResponse>> GetUsers()
     {
         var result = await _userRepository.GetAll();
-        return Ok(result);
+        return Ok(result.ToList());
     }
 }

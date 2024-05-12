@@ -3,7 +3,7 @@ using EmBackend.Services;
 using EmBackend.Services.HashService;
 using MongoDB.Driver;
 
-namespace EmBackend.Repositories.Users;
+namespace EmBackend.Repositories;
 
 public class UserRepository: IRepository<User>
 {

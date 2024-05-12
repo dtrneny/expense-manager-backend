@@ -1,13 +1,10 @@
-using EmBackend.DTOs.Auth;
+using EmBackend.Payloads.Auth;
 using EmBackend.Entities;
-using EmBackend.Helpers;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Auth;
-using EmBackend.Services;
 using EmBackend.Services.HashService;
 using EmBackend.Utilities;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
 
 namespace EmBackend.Controllers;
 
@@ -36,26 +33,23 @@ public class AuthController: ControllerBase
             builder.Eq(user => user.Email, data.Email)
         );
 
-        if (filter == null) { return Ok("Not so ok."); }
+        if (filter == null) { return BadRequest(); }
         
         var user = await _userRepository.GetOne(filter);
         
-        if (user == null) { return Ok("Not so ok."); }
+        if (user == null) { return BadRequest(); }
 
         var passwordVerified = _hashService.Verify(data.Password, user.Password);
 
-        if (!passwordVerified)
-        {
-            return Unauthorized();
-        }
+        if (!passwordVerified) { return Unauthorized(); }
 
         var tokens = await _authRepository.GetJwtTokens(user);
 
-        if (!tokens.HasValue) { return Ok("Not so ok."); }
+        if (!tokens.HasValue) { return StatusCode(500); }
         
-        var response = new LoginResponse(tokens.Value.accessToken, tokens.Value.refreshToken);
-        
-        return Ok(response);
+        return Ok(
+            new LoginResponse(tokens.Value.accessToken, tokens.Value.refreshToken)    
+        );
     }
     
     [HttpPost]
@@ -66,15 +60,15 @@ public class AuthController: ControllerBase
             builder.Eq(token => token.Token, data.RefreshToken)
         );
 
-        if (filter == null) { return Ok("Not so ok."); }
+        if (filter == null) { return BadRequest(); }
 
         var accessToken = await _authRepository.RefreshAccessToken(filter);
         
-        if (accessToken == null) { return Forbid(); }
-
-        var response = new RefreshAccessResponse(accessToken);
+        if (accessToken == null) { return Unauthorized(); }
         
-        return Ok(response);
+        return Ok(
+            new RefreshAccessResponse(accessToken)    
+        );
     }
     
     [HttpPost]
@@ -83,18 +77,18 @@ public class AuthController: ControllerBase
     {
         var userId = _authRepository.JwtService.GetUserIdFromClaimsPrincipal(HttpContext.User);
 
-        if (userId == null) { return Forbid(); }
+        if (userId == null) { return Unauthorized(); }
         
         var filter = _tokenFilterBuilder.BuildFilterDefinition(builder =>
             builder.Eq(token => token.UserId, userId)
         );
 
-        if (filter == null) { return Ok("Not so ok."); }
+        if (filter == null) { return BadRequest(); }
 
         var deleteResult = await _authRepository.DeleteRefreshToken(filter);
 
-        if (deleteResult == null) { return NotFound(); }
+        if (deleteResult == null) { return BadRequest(); }
         
-        return Ok("Logged out");
+        return Ok();
     }
 }

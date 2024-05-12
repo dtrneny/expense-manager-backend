@@ -1,6 +1,6 @@
 namespace EmBackend.DTOs;
 
-public record UserDto(
+public record UserDto (
     string Id,
     string Firstname,
     string Lastname,

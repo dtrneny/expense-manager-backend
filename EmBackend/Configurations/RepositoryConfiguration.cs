@@ -1,7 +1,6 @@
 using EmBackend.Entities;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Auth;
-using EmBackend.Repositories.Users;
 
 namespace EmBackend.Configurations;
 

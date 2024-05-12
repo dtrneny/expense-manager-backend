@@ -12,14 +12,17 @@ public class RefreshToken
     public string? Id { get; set; }
     
     [Required]
+    [BsonElement("token")]
     [JsonPropertyName("token")]
     public string Token { get; set; }
     
     [Required]
+    [BsonElement("user_id")]
     [JsonPropertyName("userId")]
     public string UserId { get; set; }
     
     [Required]
+    [BsonElement("expires")]
     [JsonPropertyName("expires")]
     public DateTime Expires { get; set; }
 

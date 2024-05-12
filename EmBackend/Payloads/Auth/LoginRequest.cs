@@ -1,4 +1,4 @@
-namespace EmBackend.DTOs.Auth;
+namespace EmBackend.Payloads.Auth;
 
 public record LoginRequest (
     string Email,
