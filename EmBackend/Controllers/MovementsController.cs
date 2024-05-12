@@ -4,6 +4,7 @@ using EmBackend.Models.Movements.Requests;
 using EmBackend.Models.Movements.Responses;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Auth;
+using EmBackend.Utilities.Mappers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,11 +17,13 @@ public class MovementsController: ControllerBase
 {
     private readonly IRepository<Movement> _movementRepository;
     private readonly AuthRepository _authRepository;
+    private readonly MovementMapper _movementMapper;
     
     public MovementsController(IRepository<Movement> movementRepository, AuthRepository authRepository)
     {
         _movementRepository = movementRepository;
         _authRepository = authRepository;
+        _movementMapper = new MovementMapper();
     }
     
     [HttpPost]
@@ -40,7 +43,7 @@ public class MovementsController: ControllerBase
     
         if (result?.Id == null) { return StatusCode(500); }
 
-        var movementDto = new MovementDto(result.Id, result.UserId, result.Amount, result.Label);
+        var movementDto = _movementMapper.MovementToMovementDto(result);
     
         return Ok(new PostMovementResponse(movementDto));
     }
