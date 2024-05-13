@@ -7,6 +7,7 @@ builder.Services.ConfigureAuth(builder.Configuration);
 builder.Services.ConfigureDatabase(builder.Configuration);
 builder.Services.ConfigureHashService();
 builder.Services.ConfigureJwtService();
+builder.Services.ConfigureUtilities();
 builder.Services.ConfigureRepositories();
 builder.Services.ConfigureRoutes();
 
