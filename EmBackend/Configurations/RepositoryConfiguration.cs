@@ -1,6 +1,5 @@
 using EmBackend.Entities;
 using EmBackend.Repositories;
-using EmBackend.Repositories.Auth;
 
 namespace EmBackend.Configurations;
 
@@ -11,5 +10,6 @@ public static class RepositoryConfiguration
         services.AddScoped<AuthRepository>();
         services.AddScoped<IRepository<User>, UserRepository>();
         services.AddScoped<IRepository<Movement>, MovementRepository>();
+        services.AddScoped<IRepository<Category>, CategoryRepository>();
     }
 }

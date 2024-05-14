@@ -21,4 +21,8 @@ public class Movement
     [BsonElement("label")]
     [JsonPropertyName("label")]
     public required string Label { get; set; }
+
+    [BsonElement("category_ids")]
+    [JsonPropertyName("category_ids")]
+    public List<string> CategoryIds { get; set; } = [];
 }
