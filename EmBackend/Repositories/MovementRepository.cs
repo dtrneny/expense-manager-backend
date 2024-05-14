@@ -11,7 +11,7 @@ public class MovementRepository: IRepository<Movement>
     
     public MovementRepository(MongoDbService mongoDbService, IHashService hashService)
     {
-        _movementsCollection = mongoDbService.Database?.GetCollection<Movement>("movement");
+        _movementsCollection = mongoDbService.Database?.GetCollection<Movement>("movements");
     }
 
     public async Task<Movement?> Create(Movement movement)

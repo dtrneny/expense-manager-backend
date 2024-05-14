@@ -1,9 +1,8 @@
 using EmBackend.Entities;
 using EmBackend.Services;
-using EmBackend.Services.HashService;
 using MongoDB.Driver;
 
-namespace EmBackend.Repositories.Auth;
+namespace EmBackend.Repositories;
 
 public class AuthRepository
 {

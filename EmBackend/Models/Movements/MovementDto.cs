@@ -4,6 +4,7 @@ public record MovementDto (
     string Id,
     string UserId,
     double Amount,
-    string Label
+    string Label,
+    List<string> CategoryIds
 );
     
