@@ -25,4 +25,8 @@ public class User
     [BsonElement("password")]
     [JsonPropertyName("password")]
     public required string Password { get; set; }
+
+    [BsonElement("balance")]
+    [JsonPropertyName("balance")]
+    public double Balance { get; set; } = 0;
 }

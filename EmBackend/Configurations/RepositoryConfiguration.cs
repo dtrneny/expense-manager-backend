@@ -1,5 +1,6 @@
 using EmBackend.Entities;
 using EmBackend.Repositories;
+using EmBackend.Repositories.Interfaces;
 
 namespace EmBackend.Configurations;
 
