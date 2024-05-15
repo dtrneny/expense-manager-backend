@@ -14,10 +14,11 @@ namespace EmBackend.Controllers;
 public class UsersController: ControllerBase
 {
     private readonly IRepository<User> _userRepository;
-    
-    public UsersController(IRepository<User> userRepository)
+    private readonly EntityMapper _entityMapper;
+    public UsersController(IRepository<User> userRepository, EntityMapper entityMapper)
     {
         _userRepository = userRepository;
+        _entityMapper = entityMapper;
     }
     
     [AllowAnonymous]
@@ -57,6 +58,27 @@ public class UsersController: ControllerBase
         if (result == null) { return StatusCode(500); }
 
         return Ok(result);
+    }
+    
+    [AllowAnonymous]
+    [HttpGet("{userId}")]
+    public async Task<ActionResult<GetUsersResponse>> GetUser(string userId)
+    {
+        var filter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
+            builder.Eq(user => user.Id, userId)
+        );
+        
+        if (filter == null) { return BadRequest();}
+        
+        var result = await _userRepository.GetOne(filter);
+        
+        if (result == null) { return BadRequest();}
+
+        var userDto = _entityMapper.UserMapper.MapUserToUserDto(result);
+        
+        if (userDto == null) { return BadRequest();}
+
+        return Ok(new GetUserResponse(userDto));
     }
     
     [HttpGet]
