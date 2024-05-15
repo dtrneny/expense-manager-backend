@@ -1,5 +1,6 @@
 using EmBackend.Entities;
 using EmBackend.Services;
+using EmBackend.Utilities;
 using MongoDB.Driver;
 
 namespace EmBackend.Repositories;
@@ -21,7 +22,7 @@ public class AuthRepository
         
         var accessToken = JwtService.GenerateAccessToken(user.Id);
         var refreshTokenString = JwtService.GenerateRefreshToken();
-        var refreshToken = await CreateRefreshToken(refreshTokenString, user.Id);
+        var refreshToken = await CreateRefreshToken(refreshTokenString, user.Id, accessToken);
 
         if (refreshToken == null) { return null;}
         
@@ -33,22 +34,40 @@ public class AuthRepository
         var tokens = await GetAll(filter);
         var token = tokens?.FirstOrDefault();
 
-        if (token == null)
-        {
-            return null;
-        }
+        if (token == null) { return null; }
         var accessToken = JwtService.GenerateAccessToken(token.UserId);
 
+        var newAccessTokens = new List<string>(token.AccessTokens) { accessToken };
+
+        var changesDocument = BsonUtilities.ToBsonDocument(new { AccessTokens = newAccessTokens });
+        var update = EntityOperationBuilder<RefreshToken>.BuildUpdateDefinition(changesDocument);
+        if (update == null) { return null; }
+
+        var updateResult = await Update(update, filter);
+        if (updateResult == null) { return null; }
+        
         return accessToken;
     }
     
-    public async Task<RefreshToken?> CreateRefreshToken(string token, string userId)
+    public async Task<RefreshToken?> Update(UpdateDefinition<RefreshToken> update, FilterDefinition<RefreshToken> filter)
     {
-        var refreshToken = new RefreshToken(
-            token: token,
-            userId: userId,
-            expires: DateTime.Now.AddDays(7)
-        );
+        var updateTask = _refreshTokenCollection?.FindOneAndUpdateAsync(filter, update);
+        if (updateTask == null) { return null; }
+      
+        var updateResult = await updateTask;
+        
+        return updateResult;
+    }
+    
+    public async Task<RefreshToken?> CreateRefreshToken(string token, string userId, string accessToken)
+    {
+        var refreshToken = new RefreshToken()
+        {
+            Token = token,
+            UserId = userId,
+            Expires = DateTime.Now.AddDays(7),
+            AccessTokens = [ accessToken ],
+        };
         
         var insert = _refreshTokenCollection?.InsertOneAsync(refreshToken);
         if (insert == null) { return null; }

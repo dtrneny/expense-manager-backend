@@ -19,8 +19,6 @@ public static class EntityOperationBuilder<T>
         if (changesDocument == null) { return null; }
         
         var builder = Builders<T>.Update;
-
-        
         if (builder == null) { return null; }
             
         UpdateDefinition<T>? update = null;

@@ -59,24 +59,20 @@ public class MovementsController: ControllerBase
             CategoryIds = data.CategoryIds
         };
         
-        // TODO: validate movement
-        
         var changesDocument = BsonUtilities.ToBsonDocument(new { Balance = user.Balance + data.Amount});
-
         var update = EntityOperationBuilder<User>.BuildUpdateDefinition(changesDocument);
-        
         if (update == null) { return BadRequest(); }
         
         var result = await _movementRepository.Create(movement);
+        if (result == null) { return StatusCode(500); }
+        
         var userUpdate = await _userRepository.Update(update, userFilter);
         
-        if (result?.Id == null) { return StatusCode(500); }
-
         var movementDto = _entityMapper.MovementMapper.MapMovementToMovementDto(result);
         
-        var validationResult = _validation.MovementDtoValidator.Validate(movementDto);
-        if (validationResult == null) { return StatusCode(500); }
-        if (!validationResult.IsValid) { return BadRequest(validationResult.Errors); }
+        var movementValidationResult = _validation.MovementDtoValidator.Validate(movementDto);
+        if (movementValidationResult == null) { return StatusCode(500); }
+        if (!movementValidationResult.IsValid) { return BadRequest(movementValidationResult.Errors); }
         
         return Ok(new PostMovementResponse(movementDto));
     }
