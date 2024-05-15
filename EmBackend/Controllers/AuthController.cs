@@ -5,6 +5,7 @@ using EmBackend.Repositories;
 using EmBackend.Repositories.Interfaces;
 using EmBackend.Services.HashService;
 using EmBackend.Utilities;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EmBackend.Controllers;
@@ -74,20 +75,16 @@ public class AuthController: ControllerBase
     [Route("logout")]
     public async Task<ActionResult> Logout()
     {
-        var userId = _authRepository.JwtService.GetUserIdFromClaimsPrincipal(HttpContext.User);
-
-        if (userId == null) { return Unauthorized(); }
-        
+        var token = await HttpContext.GetTokenAsync("access_token");
+        if (token == null) { return Unauthorized(); }
         var filter = EntityOperationBuilder<RefreshToken>.BuildFilterDefinition(builder =>
-            builder.Eq(token => token.UserId, userId)
+            builder.Where(refToken => refToken.AccessTokens.Contains(token))
         );
-
         if (filter == null) { return BadRequest(); }
 
         var deleteResult = await _authRepository.DeleteRefreshToken(filter);
-
         if (deleteResult == null) { return BadRequest(); }
         
-        return Ok();
+        return Ok("Logged out");
     }
 }

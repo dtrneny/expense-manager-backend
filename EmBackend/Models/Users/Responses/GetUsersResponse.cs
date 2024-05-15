@@ -1,5 +1,5 @@
 namespace EmBackend.Models.Users.Responses;
 
-public record GetUsersResponse(
+public record GetUsersResponse (
     List<UserDto> Users
 );

@@ -14,8 +14,7 @@ public static class AuthConfiguration
         
         if (tokenOptions == null)
         {
-            // TODO: throw exception
-            return;
+            throw new InvalidOperationException("JwtSettings section is missing or not configured properly.");
         }
         
         var key = Encoding.ASCII.GetBytes(tokenOptions.Key);

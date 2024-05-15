@@ -35,13 +35,14 @@ public class UserRepository: IRepository<User>
         return user;
     }
 
-    public async Task<UpdateResult?> Update(UpdateDefinition<User> update, FilterDefinition<User> filter)
+    public async Task<User?> Update(UpdateDefinition<User> update, FilterDefinition<User> filter)
     {
-        var updateResult = _usersCollection?.UpdateOneAsync(filter, update);
+        var updateTask = _usersCollection?.FindOneAndUpdateAsync(filter, update);
+        if (updateTask == null) { return null; }
+
+        var updateResult = await updateTask;
         
-        if (updateResult == null) { return null; }
-        
-        return await updateResult;
+        return updateResult;
     }
 
     public async Task<User?> GetOne(FilterDefinition<User> filter)

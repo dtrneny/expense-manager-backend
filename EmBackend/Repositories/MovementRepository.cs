@@ -25,9 +25,14 @@ public class MovementRepository: IRepository<Movement>
         return movement;
     }
 
-    public Task<UpdateResult?> Update(UpdateDefinition<Movement> update, FilterDefinition<Movement> filter)
+    public async Task<Movement?> Update(UpdateDefinition<Movement> update, FilterDefinition<Movement> filter)
     {
-        throw new NotImplementedException();
+        var updateTask = _movementsCollection?.FindOneAndUpdateAsync(filter, update);
+        if (updateTask == null) { return null; }
+      
+        var updateResult = await updateTask;
+        
+        return updateResult;
     }
 
     public async Task<Movement?> GetOne(FilterDefinition<Movement> filter)
