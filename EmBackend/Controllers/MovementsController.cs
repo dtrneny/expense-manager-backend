@@ -42,6 +42,16 @@ public class MovementsController: ControllerBase
 
         if (userId == null) { return Unauthorized(); }
         
+        var userFilter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
+            builder.Eq(user => user.Id, userId)
+        );
+        
+        if (userFilter == null) { return BadRequest(); }
+
+        var user = await _userRepository.GetOne(userFilter);
+        
+        if (user == null) { return BadRequest(); }
+        
         var movement = new Movement {
             UserId = userId,
             Amount = data.Amount,
@@ -49,8 +59,17 @@ public class MovementsController: ControllerBase
             CategoryIds = data.CategoryIds
         };
         
+        // TODO: validate movement
+        
+        var changesDocument = BsonUtilities.ToBsonDocument(new { Balance = user.Balance + data.Amount});
+
+        var update = EntityOperationBuilder<User>.BuildUpdateDefinition(changesDocument);
+        
+        if (update == null) { return BadRequest(); }
+        
         var result = await _movementRepository.Create(movement);
-    
+        var userUpdate = await _userRepository.Update(update, userFilter);
+        
         if (result?.Id == null) { return StatusCode(500); }
 
         var movementDto = _entityMapper.MovementMapper.MapMovementToMovementDto(result);
