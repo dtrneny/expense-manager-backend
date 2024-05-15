@@ -1,7 +1,8 @@
 using EmBackend.Entities;
 using EmBackend.Models.Users.Requests;
 using EmBackend.Models.Users.Responses;
-using EmBackend.Repositories;
+using EmBackend.Repositories.Interfaces;
+using EmBackend.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -32,6 +33,27 @@ public class UsersController: ControllerBase
         
         var result = await _userRepository.Create(user);
 
+        if (result == null) { return StatusCode(500); }
+
+        return Ok(result);
+    }
+    
+    [AllowAnonymous]
+    [HttpPatch]
+    public async Task<ActionResult<UpdateUserResponse>> UpdateUser(UpdateUserRequest data)
+    {
+        var changesDocument = BsonUtilities.ToBsonDocument(data);
+
+        var update = EntityOperationBuilder<User>.BuildUpdateDefinition(changesDocument);
+        
+        var filter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
+            builder.Eq(user => user.Id, data.Id)
+        );
+        
+        if (filter == null || update == null) { return BadRequest();}
+        
+        var result = await _userRepository.Update(update, filter);
+        
         if (result == null) { return StatusCode(500); }
 
         return Ok(result);

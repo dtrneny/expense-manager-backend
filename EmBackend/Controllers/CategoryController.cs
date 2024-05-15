@@ -2,6 +2,7 @@ using EmBackend.Entities;
 using EmBackend.Models.Categories.Requests;
 using EmBackend.Models.Categories.Responses;
 using EmBackend.Repositories;
+using EmBackend.Repositories.Interfaces;
 using EmBackend.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

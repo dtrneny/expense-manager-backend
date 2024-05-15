@@ -1,4 +1,5 @@
 using EmBackend.Entities;
+using EmBackend.Repositories.Interfaces;
 using EmBackend.Services;
 using MongoDB.Driver;
 
@@ -21,6 +22,11 @@ public class CategoryRepository: IRepository<Category>
         await insert;
         
         return category;
+    }
+
+    public Task<UpdateResult?> Update(UpdateDefinition<Category> update, FilterDefinition<Category> filter)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<Category?> GetOne(FilterDefinition<Category> filter)
