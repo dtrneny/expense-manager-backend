@@ -1,6 +1,5 @@
 using EmBackend.Entities;
 using EmBackend.Models.Movements;
-using EmBackend.Models.Movements.Requests;
 using Riok.Mapperly.Abstractions;
 
 namespace EmBackend.Utilities.Mappers;

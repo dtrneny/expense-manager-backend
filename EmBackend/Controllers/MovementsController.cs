@@ -2,6 +2,7 @@ using EmBackend.Entities;
 using EmBackend.Models.Movements.Requests;
 using EmBackend.Models.Movements.Responses;
 using EmBackend.Repositories;
+using EmBackend.Repositories.Interfaces;
 using EmBackend.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,18 +15,21 @@ namespace EmBackend.Controllers;
 public class MovementsController: ControllerBase
 {
     private readonly IRepository<Movement> _movementRepository;
+    private readonly IRepository<User> _userRepository;
     private readonly AuthRepository _authRepository;
     private readonly EntityMapper _entityMapper;
     private readonly Validation _validation;
     
     public MovementsController(
         IRepository<Movement> movementRepository,
+        IRepository<User> userRepository,
         AuthRepository authRepository,
         Validation validation,
         EntityMapper entityMapper
     )
     {
         _movementRepository = movementRepository;
+        _userRepository = userRepository;
         _authRepository = authRepository;
         _validation = validation;
         _entityMapper = entityMapper;

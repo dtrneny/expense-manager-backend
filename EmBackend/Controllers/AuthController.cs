@@ -2,6 +2,7 @@ using EmBackend.Entities;
 using EmBackend.Models.Auth.Requests;
 using EmBackend.Models.Auth.Responses;
 using EmBackend.Repositories;
+using EmBackend.Repositories.Interfaces;
 using EmBackend.Services.HashService;
 using EmBackend.Utilities;
 using Microsoft.AspNetCore.Mvc;
@@ -15,8 +16,6 @@ public class AuthController: ControllerBase
     private readonly IRepository<User> _userRepository;
     private readonly AuthRepository _authRepository;
     private readonly IHashService _hashService;
-    private readonly FilterBuilder<User> _userFilterBuilder = new();
-    private readonly FilterBuilder<RefreshToken> _tokenFilterBuilder = new();
     
     public AuthController(IRepository<User> userRepository, AuthRepository authRepository, IHashService hashService)
     {
@@ -29,7 +28,7 @@ public class AuthController: ControllerBase
     [Route("login")]
     public async Task<ActionResult<LoginResponse>> Login(LoginRequest data)
     {
-        var filter = _userFilterBuilder.BuildFilterDefinition(builder =>
+        var filter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
             builder.Eq(user => user.Email, data.Email)
         );
 
@@ -56,7 +55,7 @@ public class AuthController: ControllerBase
     [Route("refresh-access")]
     public async Task<ActionResult<RefreshAccessResponse>> RefreshAccess(RefreshAccessRequest data)
     {
-        var filter = _tokenFilterBuilder.BuildFilterDefinition(builder =>
+        var filter = EntityOperationBuilder<RefreshToken>.BuildFilterDefinition(builder =>
             builder.Eq(token => token.Token, data.RefreshToken)
         );
 
@@ -79,7 +78,7 @@ public class AuthController: ControllerBase
 
         if (userId == null) { return Unauthorized(); }
         
-        var filter = _tokenFilterBuilder.BuildFilterDefinition(builder =>
+        var filter = EntityOperationBuilder<RefreshToken>.BuildFilterDefinition(builder =>
             builder.Eq(token => token.UserId, userId)
         );
 

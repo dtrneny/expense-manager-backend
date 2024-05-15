@@ -1,6 +1,9 @@
 using EmBackend.Entities;
+using EmBackend.Models.Users.Requests;
+using EmBackend.Repositories.Interfaces;
 using EmBackend.Services;
 using EmBackend.Services.HashService;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace EmBackend.Repositories;
@@ -31,7 +34,16 @@ public class UserRepository: IRepository<User>
         
         return user;
     }
-    
+
+    public async Task<UpdateResult?> Update(UpdateDefinition<User> update, FilterDefinition<User> filter)
+    {
+        var updateResult = _usersCollection?.UpdateOneAsync(filter, update);
+        
+        if (updateResult == null) { return null; }
+        
+        return await updateResult;
+    }
+
     public async Task<User?> GetOne(FilterDefinition<User> filter)
     {
         var users = await GetAll(filter);

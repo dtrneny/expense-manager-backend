@@ -1,4 +1,5 @@
 using EmBackend.Entities;
+using EmBackend.Repositories.Interfaces;
 using EmBackend.Services;
 using EmBackend.Services.HashService;
 using MongoDB.Driver;
@@ -22,6 +23,11 @@ public class MovementRepository: IRepository<Movement>
         await insert;
         
         return movement;
+    }
+
+    public Task<UpdateResult?> Update(UpdateDefinition<Movement> update, FilterDefinition<Movement> filter)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<Movement?> GetOne(FilterDefinition<Movement> filter)
