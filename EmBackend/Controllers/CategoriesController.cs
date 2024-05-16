@@ -22,7 +22,6 @@ public class CategoriesController: ControllerBase
     
     public CategoriesController(
         IRepository<Category> categoryRepository,
-        IRepository<User> userRepository,
         AuthRepository authRepository,
         Validation validation,
         EntityMapper entityMapper
@@ -37,19 +36,22 @@ public class CategoriesController: ControllerBase
     [HttpPost]
     public async Task<ActionResult<PostCategoryResponse>> PostCategory(PostCategoryRequest data)
     {
-        var category = _entityMapper.CategoryMapper.MapPostCategoryRequestToCategory(data);
+        var categoryData = new Category
+        {
+            Name = data.Name,
+            OwnerId = data.OwnerId,
+            Ownership = data.Ownership
+        };
         
-        if (category == null) { return BadRequest(); }
-
-        var categoryValidationResult = _validation.CategoryValidator.Validate(category);
+        var categoryValidationResult = _validation.CategoryValidator.Validate(categoryData);
         if (categoryValidationResult == null) { return StatusCode(500); }
         if (!categoryValidationResult.IsValid) { return BadRequest(categoryValidationResult.Errors); }
         
-        var result = await _categoryRepository.Create(category);
+        var category = await _categoryRepository.Create(categoryData);
+        if (category == null) { return Problem("Category could not be created."); }
         
-        if (result == null) { return StatusCode(500); }
-        
-        var categoryDto = _entityMapper.CategoryMapper.MapCategoryToCategoryDto(result);
+        var categoryDto = _entityMapper.CategoryMapper.MapCategoryToCategoryDto(category);
+        if (categoryDto == null) { return StatusCode(500); }
         
         return Ok(new PostCategoryResponse(categoryDto));
     }
@@ -57,16 +59,19 @@ public class CategoriesController: ControllerBase
     [HttpPatch("{id}")]
     public async Task<ActionResult<UpdateCategoryResponse>> UpdateCategory(UpdateCategoryRequest data, string id)
     {
-        var changesDocument = BsonUtilities.ToBsonDocument(data);
+        var updateValidationResult = _validation.UpdateCategoryValidator.Validate(data);
+        if (updateValidationResult == null) { return StatusCode(500); }
+        if (!updateValidationResult.IsValid) { return BadRequest(updateValidationResult.Errors); }
         
+        var changesDocument = BsonUtilities.ToBsonDocument(data);
         var update = EntityOperationBuilder<Category>.BuildUpdateDefinition(changesDocument);
         var filter = EntityOperationBuilder<Category>.BuildFilterDefinition(builder =>
             builder.Eq(category => category.Id, id)
         );
-        if (filter == null || update == null) { return BadRequest();}
+        if (filter == null || update == null) { return BadRequest("The provided data could not be utilized for filter or update."); }
         
         var category = await _categoryRepository.Update(update, filter);
-        if (category == null) { return StatusCode(500); }
+        if (category == null) { return Problem("Category could not be updated."); }
         
         var categoryDto = _entityMapper.CategoryMapper.MapCategoryToCategoryDto(category);
         if (categoryDto == null) { return StatusCode(500); }
@@ -86,13 +91,12 @@ public class CategoriesController: ControllerBase
                 (category.Ownership == CategoryOwnership.User && category.OwnerId == userId)
             )
         );
-        if (filter == null) { return BadRequest();}
+        if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
 
         var categories = await _categoryRepository.GetAll(filter);
         var categoriesDtos = categories
             .Select(category => _entityMapper.CategoryMapper.MapCategoryToCategoryDto(category))
             .ToList();
-        
         
         return Ok(new GetCategoriesResponse(categoriesDtos));
     }
@@ -103,11 +107,11 @@ public class CategoriesController: ControllerBase
         var filter = EntityOperationBuilder<Category>.BuildFilterDefinition(builder =>
             builder.Eq(category => category.Id, id)
         );
-        if (filter == null) { return BadRequest(); }
+        if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
 
         var deleteResult = await _categoryRepository.Delete(filter);
-        if (deleteResult == null) { return BadRequest(); }
+        if (deleteResult == null) { return Problem("Category could not be deleted."); }
         
-        return Ok("Category deleted");
+        return Ok("Category deleted.");
     }
 }

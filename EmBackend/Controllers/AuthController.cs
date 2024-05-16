@@ -32,24 +32,18 @@ public class AuthController: ControllerBase
         var filter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
             builder.Eq(user => user.Email, data.Email)
         );
-
-        if (filter == null) { return BadRequest(); }
+        if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
         
         var user = await _userRepository.GetOne(filter);
-        
-        if (user == null) { return BadRequest(); }
+        if (user == null) { return NotFound("User could not be found."); }
 
         var passwordVerified = _hashService.Verify(data.Password, user.Password);
-
-        if (!passwordVerified) { return Unauthorized(); }
+        if (!passwordVerified) { return Unauthorized("The user could not be authorized."); }
 
         var tokens = await _authRepository.GetJwtTokens(user);
-
-        if (!tokens.HasValue) { return StatusCode(500); }
+        if (!tokens.HasValue) { return Problem("The user could not be logged in."); }
         
-        return Ok(
-            new LoginResponse(tokens.Value.accessToken, tokens.Value.refreshToken)    
-        );
+        return Ok(new LoginResponse(tokens.Value.accessToken, tokens.Value.refreshToken));
     }
     
     [HttpPost]
@@ -59,32 +53,29 @@ public class AuthController: ControllerBase
         var filter = EntityOperationBuilder<RefreshToken>.BuildFilterDefinition(builder =>
             builder.Eq(token => token.Token, data.RefreshToken)
         );
-
-        if (filter == null) { return BadRequest(); }
+        if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
 
         var accessToken = await _authRepository.RefreshAccessToken(filter);
+        if (accessToken == null) { return Unauthorized("The token could not be authorized."); }
         
-        if (accessToken == null) { return Unauthorized(); }
-        
-        return Ok(
-            new RefreshAccessResponse(accessToken)    
-        );
+        return Ok(new RefreshAccessResponse(accessToken));
     }
     
     [HttpDelete]
     [Route("logout")]
-    public async Task<ActionResult> Logout()
+    public async Task<ActionResult<LogoutResponse>> Logout()
     {
         var token = await HttpContext.GetTokenAsync("access_token");
-        if (token == null) { return Unauthorized(); }
+        if (token == null) { return Unauthorized("The token could not be authorized."); }
+        
         var filter = EntityOperationBuilder<RefreshToken>.BuildFilterDefinition(builder =>
             builder.Where(refToken => refToken.AccessTokens.Contains(token))
         );
-        if (filter == null) { return BadRequest(); }
+        if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
 
         var deleteResult = await _authRepository.DeleteRefreshToken(filter);
-        if (deleteResult == null) { return BadRequest(); }
+        if (deleteResult == null) { return Problem("The user could not be logged out."); }
         
-        return Ok("Logged out");
+        return Ok(new LogoutResponse("The user has been be logged out."));
     }
 }

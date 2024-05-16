@@ -21,6 +21,10 @@ public class Movement
     [BsonElement("label")]
     [JsonPropertyName("label")]
     public required string Label { get; set; }
+    
+    [BsonElement("timestamp")]
+    [JsonPropertyName("timestamp")]
+    public required DateTime Timestamp { get; set; }
 
     [BsonElement("category_ids")]
     [JsonPropertyName("category_ids")]

@@ -39,43 +39,39 @@ public class MovementsController: ControllerBase
     [HttpPost]
     public async Task<ActionResult<PostMovementResponse>> PostMovement(PostMovementRequest data)
     {
-        var userId = _authRepository.JwtService.GetUserIdFromClaimsPrincipal(HttpContext.User);
-
-        if (userId == null) { return Unauthorized(); }
-        
         var userFilter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
-            builder.Eq(user => user.Id, userId)
+            builder.Eq(user => user.Id, data.UserId)
         );
-        
-        if (userFilter == null) { return BadRequest(); }
+        if (userFilter == null) { return BadRequest("The provided data could not be utilized for filter."); }
 
         var user = await _userRepository.GetOne(userFilter);
-        
-        if (user == null) { return BadRequest(); }
+        if (user == null) { return NotFound("User could not be found."); }
         
         var movementData = new Movement {
-            UserId = userId,
+            UserId = data.UserId,
             Amount = data.Amount,
             Label = data.Label,
+            Timestamp = data.Timestamp,
             CategoryIds = data.CategoryIds
         };
+        
+        var movementValidationResult = _validation.MovementValidator.Validate(movementData);
+        if (movementValidationResult == null) { return StatusCode(500); }
+        if (!movementValidationResult.IsValid) { return BadRequest(movementValidationResult.Errors); }
 
         var updateRequest = new UpdateUserRequest(null, null, null, Balance: user.Balance + data.Amount);
         var changesDocument = BsonUtilities.ToBsonDocument(updateRequest);
         var update = EntityOperationBuilder<User>.BuildUpdateDefinition(changesDocument);
-        if (update == null) { return BadRequest(); }
+        if (update == null) { return BadRequest("The provided data could not be utilized for update."); }
         
         var movement = await _movementRepository.Create(movementData);
-        if (movement == null) { return StatusCode(500); }
+        if (movement == null) { return Problem("Movement could not be created."); }
         
         var userUpdate = await _userRepository.Update(update, userFilter);
-        if (userUpdate == null) { return StatusCode(500); }
+        if (userUpdate == null) { return Problem("User balance could not be updated."); }
         
         var movementDto = _entityMapper.MovementMapper.MapMovementToMovementDto(movement);
-        
-        var movementValidationResult = _validation.MovementDtoValidator.Validate(movementDto);
-        if (movementValidationResult == null) { return StatusCode(500); }
-        if (!movementValidationResult.IsValid) { return BadRequest(movementValidationResult.Errors); }
+        if (movementDto == null) { return StatusCode(500); }
         
         return Ok(new PostMovementResponse(movementDto));
     }
@@ -89,13 +85,12 @@ public class MovementsController: ControllerBase
         var filter = EntityOperationBuilder<Movement>.BuildFilterDefinition(builder =>
             builder.Eq(movement => movement.UserId, userId)
         );
-        if (filter == null) { return BadRequest();}
+        if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
 
         var movements = await _movementRepository.GetAll(filter);
         var movementsDtos = movements
             .Select(movement => _entityMapper.MovementMapper.MapMovementToMovementDto(movement))
             .ToList();
-        
         
         return Ok(new GetMovementsResponse(movementsDtos));
     }
@@ -103,16 +98,19 @@ public class MovementsController: ControllerBase
     [HttpPatch("{id}")]
     public async Task<ActionResult<UpdateMovementResponse>> UpdateMovement(UpdateMovementRequest data, string id)
     {
-        var changesDocument = BsonUtilities.ToBsonDocument(data);
+        var updateValidationResult = _validation.UpdateMovementValidator.Validate(data);
+        if (updateValidationResult == null) { return StatusCode(500); }
+        if (!updateValidationResult.IsValid) { return BadRequest(updateValidationResult.Errors); }
         
+        var changesDocument = BsonUtilities.ToBsonDocument(data);
         var update = EntityOperationBuilder<Movement>.BuildUpdateDefinition(changesDocument);
         var filter = EntityOperationBuilder<Movement>.BuildFilterDefinition(builder =>
             builder.Eq(category => category.Id, id)
         );
-        if (filter == null || update == null) { return BadRequest();}
+        if (filter == null || update == null) { return BadRequest("The provided data could not be utilized for filter or update."); }
         
         var movement = await _movementRepository.Update(update, filter);
-        if (movement == null) { return StatusCode(500); }
+        if (movement == null) { return Problem("Movement could not be updated."); }
         
         var movementDto = _entityMapper.MovementMapper.MapMovementToMovementDto(movement);
         if (movementDto == null) { return StatusCode(500); }
@@ -126,11 +124,11 @@ public class MovementsController: ControllerBase
         var filter = EntityOperationBuilder<Movement>.BuildFilterDefinition(builder =>
             builder.Eq(movement => movement.Id, id)
         );
-        if (filter == null) { return BadRequest(); }
+        if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
 
         var deleteResult = await _movementRepository.Delete(filter);
-        if (deleteResult == null) { return BadRequest(); }
-        
-        return Ok("Movement deleted");
+        if (deleteResult == null) { return Problem("Movement could not be updated."); }
+
+        return Ok("Movement deleted.");
     }
 }

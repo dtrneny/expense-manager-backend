@@ -1,7 +1,7 @@
 using EmBackend.Models.Users.Requests;
 using FluentValidation;
 
-namespace EmBackend.Utilities.Validators;
+namespace EmBackend.Utilities.Validators.User;
 
 public class UserUpdateValidator: AbstractValidator<UpdateUserRequest>
 {

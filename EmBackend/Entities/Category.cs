@@ -21,5 +21,5 @@ public class Category
     
     [BsonElement("owner_id")]
     [JsonPropertyName("owner_id")]
-    public string? OwnerId { get; set; } = null;
+    public string? OwnerId { get; set; }
 }

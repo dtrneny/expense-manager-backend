@@ -1,9 +1,8 @@
-using EmBackend.Entities;
 using FluentValidation;
 
-namespace EmBackend.Utilities.Validators;
+namespace EmBackend.Utilities.Validators.Movement;
 
-public class MovementValidator: AbstractValidator<Movement>
+public class MovementValidator: AbstractValidator<Entities.Movement>
 {
     public MovementValidator()
     {
@@ -17,5 +16,8 @@ public class MovementValidator: AbstractValidator<Movement>
         RuleFor(movement => movement.Label)
             .NotEmpty()
             .MaximumLength(15);
+        
+        RuleFor(movement => movement.Timestamp)
+            .NotNull();
     }
 }
