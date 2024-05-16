@@ -61,4 +61,12 @@ public class CategoryRepository: IRepository<Category>
         
         return await categories;
     }
+
+    public async Task<DeleteResult?> Delete(FilterDefinition<Category> filter)
+    {
+        var deleteTask = _categoriesCollection?.DeleteOneAsync(filter);
+        if (deleteTask == null) { return null; }
+        
+        return await deleteTask;
+    }
 }

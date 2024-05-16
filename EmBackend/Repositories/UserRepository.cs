@@ -1,9 +1,7 @@
 using EmBackend.Entities;
-using EmBackend.Models.Users.Requests;
 using EmBackend.Repositories.Interfaces;
 using EmBackend.Services;
 using EmBackend.Services.HashService;
-using MongoDB.Bson;
 using MongoDB.Driver;
 
 namespace EmBackend.Repositories;
@@ -71,5 +69,13 @@ public class UserRepository: IRepository<User>
         if (users == null) { return []; }
         
         return await users;
+    }
+    
+    public async Task<DeleteResult?> Delete(FilterDefinition<User> filter)
+    {
+        var deleteTask = _usersCollection?.DeleteOneAsync(filter);
+        if (deleteTask == null) { return null; }
+        
+        return await deleteTask;
     }
 }

@@ -96,4 +96,18 @@ public class CategoriesController: ControllerBase
         
         return Ok(new GetCategoriesResponse(categoriesDtos));
     }
+    
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteCategory(string id)
+    {
+        var filter = EntityOperationBuilder<Category>.BuildFilterDefinition(builder =>
+            builder.Eq(category => category.Id, id)
+        );
+        if (filter == null) { return BadRequest(); }
+
+        var deleteResult = await _categoryRepository.Delete(filter);
+        if (deleteResult == null) { return BadRequest(); }
+        
+        return Ok("Category deleted");
+    }
 }

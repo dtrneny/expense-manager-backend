@@ -23,7 +23,7 @@ public class UserUpdateValidator: AbstractValidator<UpdateUserRequest>
 
         When(update => update.Email != null, () =>
         {
-            RuleFor(update => update.Firstname)
+            RuleFor(update => update.Email)
                 .NotEmpty()
                 .EmailAddress();
         });
