@@ -71,7 +71,7 @@ public class AuthController: ControllerBase
         );
     }
     
-    [HttpPost]
+    [HttpDelete]
     [Route("logout")]
     public async Task<ActionResult> Logout()
     {

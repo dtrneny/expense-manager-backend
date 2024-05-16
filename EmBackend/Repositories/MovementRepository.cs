@@ -62,4 +62,12 @@ public class MovementRepository: IRepository<Movement>
         
         return await movements;
     }
+    
+    public async Task<DeleteResult?> Delete(FilterDefinition<Movement> filter)
+    {
+        var deleteTask = _movementsCollection?.DeleteOneAsync(filter);
+        if (deleteTask == null) { return null; }
+        
+        return await deleteTask;
+    }
 }

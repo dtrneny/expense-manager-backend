@@ -1,6 +1,7 @@
 using EmBackend.Entities;
 using EmBackend.Models.Movements.Requests;
 using EmBackend.Models.Movements.Responses;
+using EmBackend.Models.Users.Requests;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Interfaces;
 using EmBackend.Utilities;
@@ -52,28 +53,84 @@ public class MovementsController: ControllerBase
         
         if (user == null) { return BadRequest(); }
         
-        var movement = new Movement {
+        var movementData = new Movement {
             UserId = userId,
             Amount = data.Amount,
             Label = data.Label,
             CategoryIds = data.CategoryIds
         };
-        
-        var changesDocument = BsonUtilities.ToBsonDocument(new { Balance = user.Balance + data.Amount});
+
+        var updateRequest = new UpdateUserRequest(null, null, null, Balance: user.Balance + data.Amount);
+        var changesDocument = BsonUtilities.ToBsonDocument(updateRequest);
         var update = EntityOperationBuilder<User>.BuildUpdateDefinition(changesDocument);
         if (update == null) { return BadRequest(); }
         
-        var result = await _movementRepository.Create(movement);
-        if (result == null) { return StatusCode(500); }
+        var movement = await _movementRepository.Create(movementData);
+        if (movement == null) { return StatusCode(500); }
         
         var userUpdate = await _userRepository.Update(update, userFilter);
+        if (userUpdate == null) { return StatusCode(500); }
         
-        var movementDto = _entityMapper.MovementMapper.MapMovementToMovementDto(result);
+        var movementDto = _entityMapper.MovementMapper.MapMovementToMovementDto(movement);
         
         var movementValidationResult = _validation.MovementDtoValidator.Validate(movementDto);
         if (movementValidationResult == null) { return StatusCode(500); }
         if (!movementValidationResult.IsValid) { return BadRequest(movementValidationResult.Errors); }
         
         return Ok(new PostMovementResponse(movementDto));
+    }
+    
+    [HttpGet]
+    public async Task<ActionResult<GetMovementsResponse>> GetMovements()
+    {
+        var userId = _authRepository.JwtService.GetUserIdFromClaimsPrincipal(HttpContext.User);
+        if (userId == null) { return Unauthorized(); }
+        
+        var filter = EntityOperationBuilder<Movement>.BuildFilterDefinition(builder =>
+            builder.Eq(movement => movement.UserId, userId)
+        );
+        if (filter == null) { return BadRequest();}
+
+        var movements = await _movementRepository.GetAll(filter);
+        var movementsDtos = movements
+            .Select(movement => _entityMapper.MovementMapper.MapMovementToMovementDto(movement))
+            .ToList();
+        
+        
+        return Ok(new GetMovementsResponse(movementsDtos));
+    }
+    
+    [HttpPatch("{id}")]
+    public async Task<ActionResult<UpdateMovementResponse>> UpdateMovement(UpdateMovementRequest data, string id)
+    {
+        var changesDocument = BsonUtilities.ToBsonDocument(data);
+        
+        var update = EntityOperationBuilder<Movement>.BuildUpdateDefinition(changesDocument);
+        var filter = EntityOperationBuilder<Movement>.BuildFilterDefinition(builder =>
+            builder.Eq(category => category.Id, id)
+        );
+        if (filter == null || update == null) { return BadRequest();}
+        
+        var movement = await _movementRepository.Update(update, filter);
+        if (movement == null) { return StatusCode(500); }
+        
+        var movementDto = _entityMapper.MovementMapper.MapMovementToMovementDto(movement);
+        if (movementDto == null) { return StatusCode(500); }
+
+        return Ok(new UpdateMovementResponse(movementDto));
+    }
+    
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteMovement(string id)
+    {
+        var filter = EntityOperationBuilder<Movement>.BuildFilterDefinition(builder =>
+            builder.Eq(movement => movement.Id, id)
+        );
+        if (filter == null) { return BadRequest(); }
+
+        var deleteResult = await _movementRepository.Delete(filter);
+        if (deleteResult == null) { return BadRequest(); }
+        
+        return Ok("Movement deleted");
     }
 }
