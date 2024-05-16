@@ -1,9 +1,8 @@
-using EmBackend.Entities;
 using FluentValidation;
 
-namespace EmBackend.Utilities.Validators;
+namespace EmBackend.Utilities.Validators.UserValidators;
 
-public class UserValidator: AbstractValidator<User>
+public class UserValidator: AbstractValidator<Entities.User>
 {
     public UserValidator()
     {

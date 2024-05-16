@@ -43,16 +43,16 @@ public class UsersController: ControllerBase
         var emailFilter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
             builder.Eq(user => user.Email, data.Email)
         );
-        if (emailFilter == null) { return StatusCode(500); }
+        if (emailFilter == null) { return BadRequest("The provided data could not be utilized for filter."); }
         var users = await _userRepository.GetAll(emailFilter);
-        if (users.Any()) { return BadRequest(); }
+        if (users.Any()) { return BadRequest("Provided email is unavailable."); }
 
         var userValidationResult = _validation.UserValidator.Validate(userData);
         if (userValidationResult == null) { return StatusCode(500); }
         if (!userValidationResult.IsValid) { return BadRequest(userValidationResult.Errors); }
         
         var user = await _userRepository.Create(userData);
-        if (user == null) { return StatusCode(500); }
+        if (user == null) { return Problem("User could not be created."); }
 
         var userDto = _entityMapper.UserMapper.MapUserToUserDto(user);
         if (userDto == null) { return StatusCode(500); }
@@ -68,18 +68,17 @@ public class UsersController: ControllerBase
         if (!updateValidationResult.IsValid) { return BadRequest(updateValidationResult.Errors); }
         
         var changesDocument = BsonUtilities.ToBsonDocument(data);
-
         var update = EntityOperationBuilder<User>.BuildUpdateDefinition(changesDocument);
         var filter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
             builder.Eq(user => user.Id, id)
         );
-        if (filter == null || update == null) { return BadRequest();}
+        if (filter == null || update == null) { return BadRequest("The provided data could not be utilized for filter or update."); }
         
         var user = await _userRepository.Update(update, filter);
-        if (user == null) { return StatusCode(500); }
+        if (user == null) { return Problem("User could not be updated."); }
         
         var userDto = _entityMapper.UserMapper.MapUserToUserDto(user);
-        if (userDto == null) { return BadRequest(); }
+        if (userDto == null) { return StatusCode(500); }
 
         return Ok(new UpdateUserResponse(userDto));
     }
@@ -90,13 +89,13 @@ public class UsersController: ControllerBase
         var filter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
             builder.Eq(user => user.Id, id)
         );
-        if (filter == null) { return BadRequest();}
+        if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
         
         var user = await _userRepository.GetOne(filter);
-        if (user == null) { return BadRequest();}
+        if (user == null) { return NotFound(); }
 
         var userDto = _entityMapper.UserMapper.MapUserToUserDto(user);
-        if (userDto == null) { return BadRequest(); }
+        if (userDto == null) { return StatusCode(500); }
 
         return Ok(new GetUserResponse(userDto));
     }

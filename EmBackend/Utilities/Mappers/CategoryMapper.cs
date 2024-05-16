@@ -9,5 +9,4 @@ namespace EmBackend.Utilities.Mappers;
 public partial class CategoryMapper
 {
     public partial CategoryDto MapCategoryToCategoryDto(Category entity);
-    public partial Category MapPostCategoryRequestToCategory(PostCategoryRequest data);
 }
