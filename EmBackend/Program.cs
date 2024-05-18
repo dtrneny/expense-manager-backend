@@ -4,6 +4,7 @@ using EmBackend.Configurations;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.ConfigureCors();
 builder.Services.ConfigureAuth(builder.Configuration);
 builder.Services.ConfigureDatabase(builder.Configuration);
 builder.Services.ConfigureHashService();
@@ -20,6 +21,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseCors("test");
 
 app.UseAuthentication();
 app.UseAuthorization();
