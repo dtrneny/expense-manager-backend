@@ -10,7 +10,7 @@ public static class RoutesConfiguration
     public static void ConfigureCors(this IServiceCollection services)
     {
         services.AddCors(options => {
-            options.AddPolicy(name: "test", policy =>
+            options.AddPolicy(name: "cors", policy =>
             {
                 policy
                     .WithOrigins("http://localhost:5173")

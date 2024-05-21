@@ -56,6 +56,7 @@ public class AuthController: ControllerBase
         return Ok(new LoginResponse(tokens.Value.accessToken, tokens.Value.refreshToken));
     }
     
+    [AllowAnonymous]
     [HttpPost]
     [Route("refresh-access")]
     public async Task<ActionResult<RefreshAccessResponse>> RefreshAccess(RefreshAccessRequest data)
@@ -63,10 +64,10 @@ public class AuthController: ControllerBase
         var filter = EntityOperationBuilder<RefreshToken>.BuildFilterDefinition(builder =>
             builder.Eq(token => token.Token, data.RefreshToken)
         );
-        if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
+        if (filter == null) { return BadRequest(new MessageResponse("The provided data could not be utilized for filter.")); }
 
         var accessToken = await _authRepository.RefreshAccessToken(filter);
-        if (accessToken == null) { return Forbid(); }
+        if (accessToken == null) { return StatusCode(403, new MessageResponse("The provided token could not be used for refresh of access token.")); }
         
         return Ok(new RefreshAccessResponse(accessToken));
     }

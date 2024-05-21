@@ -22,7 +22,7 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.UseCors("test");
+app.UseCors("cors");
 
 app.UseAuthentication();
 app.UseAuthorization();

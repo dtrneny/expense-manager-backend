@@ -1,4 +1,5 @@
 using EmBackend.Entities;
+using EmBackend.Models.Movements.Params;
 using EmBackend.Models.Movements.Requests;
 using EmBackend.Models.Movements.Responses;
 using EmBackend.Models.Users.Requests;
@@ -77,8 +78,11 @@ public class MovementsController: ControllerBase
     }
     
     [HttpGet]
-    public async Task<ActionResult<GetMovementsResponse>> GetMovements()
+    public async Task<ActionResult<GetMovementsResponse>> GetMovements(GetMovementsParams queryParams)
     {
+        var query = QueryBuilder.BuildFilterDefinitionFromQuery<Movement, GetMovementsParams>(queryParams);
+        if (query == null) { return BadRequest("The provided data could not be utilized for query."); }
+        
         var userId = _authRepository.JwtService.GetUserIdFromClaimsPrincipal(HttpContext.User);
         if (userId == null) { return Unauthorized(); }
         
@@ -86,8 +90,10 @@ public class MovementsController: ControllerBase
             builder.Eq(movement => movement.UserId, userId)
         );
         if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
+        
+        var combinedFilter = query & filter;
 
-        var movements = await _movementRepository.GetAll(filter);
+        var movements = await _movementRepository.GetAll(combinedFilter);
         var movementsDtos = movements
             .Select(movement => _entityMapper.MovementMapper.MapMovementToMovementDto(movement))
             .ToList();
