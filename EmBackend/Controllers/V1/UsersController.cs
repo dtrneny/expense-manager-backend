@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using EmBackend.Entities;
 using EmBackend.Models.Users.Requests;
 using EmBackend.Models.Users.Responses;
@@ -6,11 +7,12 @@ using EmBackend.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EmBackend.Controllers;
+namespace EmBackend.Controllers.V1;
 
 [Authorize]
 [ApiController]
-[Route("api/v1/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{v:apiVersion}/[controller]")]
 public class UsersController: ControllerBase
 {
     private readonly IRepository<User> _userRepository;

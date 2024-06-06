@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using EmBackend.Entities;
 using EmBackend.Models.Categories;
 using EmBackend.Models.Statistics.Responses;
@@ -9,11 +10,12 @@ using EmBackend.Utilities.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EmBackend.Controllers;
+namespace EmBackend.Controllers.V1;
 
 [Authorize]
 [ApiController]
-[Route("api/v1/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{v:apiVersion}/[controller]")]
 public class StatisticsController : ControllerBase
 {
     private readonly IRepository<Movement> _movementRepository;

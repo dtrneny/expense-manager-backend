@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using EmBackend.Entities;
 using EmBackend.Entities.Helpers;
 using EmBackend.Models.Categories.Requests;
@@ -8,11 +9,12 @@ using EmBackend.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EmBackend.Controllers;
+namespace EmBackend.Controllers.V1;
 
 [Authorize]
 [ApiController]
-[Route("api/v1/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{v:apiVersion}/[controller]")]
 public class CategoriesController: ControllerBase
 {
     private readonly IRepository<Category> _categoryRepository;

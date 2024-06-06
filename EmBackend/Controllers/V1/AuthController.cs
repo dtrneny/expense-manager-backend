@@ -1,3 +1,4 @@
+using Asp.Versioning;
 using EmBackend.Entities;
 using EmBackend.Models;
 using EmBackend.Models.Auth.Requests;
@@ -10,10 +11,11 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EmBackend.Controllers;
+namespace EmBackend.Controllers.V1;
 
 [ApiController]
-[Route("api/v1/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{v:apiVersion}/[controller]")]
 public class AuthController: ControllerBase
 {
     private readonly IRepository<User> _userRepository;
@@ -35,6 +37,7 @@ public class AuthController: ControllerBase
     }
     
     [AllowAnonymous]
+    [MapToApiVersion(1)]
     [HttpPost]
     [Route("login")]
     public async Task<ActionResult<LoginResponse>> Login(LoginRequest data)
@@ -57,6 +60,7 @@ public class AuthController: ControllerBase
     }
     
     [AllowAnonymous]
+    [MapToApiVersion(1)]
     [HttpPost]
     [Route("refresh-access")]
     public async Task<ActionResult<RefreshAccessResponse>> RefreshAccess(RefreshAccessRequest data)
@@ -73,6 +77,7 @@ public class AuthController: ControllerBase
     }
     
     [Authorize]
+    [MapToApiVersion(1)]
     [HttpGet]
     [Route("current")]
     public async Task<ActionResult<GetCurrentResponse>> GetCurrent()
@@ -95,6 +100,7 @@ public class AuthController: ControllerBase
     }
     
     [Authorize]
+    [MapToApiVersion(1)]
     [HttpDelete]
     [Route("logout")]
     public async Task<ActionResult<MessageResponse>> Logout()
