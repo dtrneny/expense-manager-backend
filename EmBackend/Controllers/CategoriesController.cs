@@ -12,7 +12,7 @@ namespace EmBackend.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public class CategoriesController: ControllerBase
 {
     private readonly IRepository<Category> _categoryRepository;

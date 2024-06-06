@@ -13,7 +13,7 @@ namespace EmBackend.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public class MovementsController: ControllerBase
 {
     private readonly IRepository<Movement> _movementRepository;

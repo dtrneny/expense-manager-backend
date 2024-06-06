@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace EmBackend.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public class AuthController: ControllerBase
 {
     private readonly IRepository<User> _userRepository;

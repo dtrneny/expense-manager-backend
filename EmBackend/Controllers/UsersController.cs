@@ -1,10 +1,8 @@
 using EmBackend.Entities;
-using EmBackend.Models.Categories.Responses;
 using EmBackend.Models.Users.Requests;
 using EmBackend.Models.Users.Responses;
 using EmBackend.Repositories.Interfaces;
 using EmBackend.Utilities;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,7 +10,7 @@ namespace EmBackend.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/v1/[controller]")]
 public class UsersController: ControllerBase
 {
     private readonly IRepository<User> _userRepository;
