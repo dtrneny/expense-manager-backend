@@ -103,7 +103,7 @@ public class AuthController: ControllerBase
         if (token == null) { return Unauthorized("The token could not be authorized."); }
         
         var filter = EntityOperationBuilder<RefreshToken>.BuildFilterDefinition(builder =>
-            builder.Where(refToken => refToken.AccessTokens.Contains(token))
+            builder.Eq(refToken => refToken.AccessToken, token)
         );
         if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
 

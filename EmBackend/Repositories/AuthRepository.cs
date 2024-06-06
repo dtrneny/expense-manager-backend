@@ -12,8 +12,28 @@ public class AuthRepository
     
     public AuthRepository(MongoDbService mongoDbService, JwtService jwtService)
     {
-        _refreshTokenCollection = mongoDbService.Database?.GetCollection<RefreshToken>("refreshTokens");
+        _refreshTokenCollection = mongoDbService.Database?.GetCollection<RefreshToken>("refreshTokens");;
         JwtService = jwtService;
+        
+        SetupExpiration();
+    }
+    
+    private void SetupExpiration()
+    {
+        var indexBuilder = Builders<RefreshToken>.IndexKeys;
+        
+        if (indexBuilder == null || _refreshTokenCollection?.Indexes == null) { return; }
+        
+        var expirationModel = new CreateIndexModel<RefreshToken>(
+            keys: indexBuilder.Ascending("Expires"),
+            options: new CreateIndexOptions
+            {
+                ExpireAfter = TimeSpan.FromSeconds(0),
+                Name = "ExpireAtIndex"
+            }
+        );
+        
+        _refreshTokenCollection.Indexes.CreateOne(expirationModel);
     }
 
     public async Task<(string accessToken, string refreshToken)?> GetJwtTokens(User user)
@@ -36,10 +56,8 @@ public class AuthRepository
 
         if (token == null) { return null; }
         var accessToken = JwtService.GenerateAccessToken(token.UserId);
-
-        var newAccessTokens = new List<string>(token.AccessTokens) { accessToken };
-
-        var changesDocument = BsonUtilities.ToBsonDocument(new { AccessTokens = newAccessTokens });
+        
+        var changesDocument = BsonUtilities.ToBsonDocument(new { AccessToken = accessToken });
         var update = EntityOperationBuilder<RefreshToken>.BuildUpdateDefinition(changesDocument);
         if (update == null) { return null; }
 
@@ -66,7 +84,7 @@ public class AuthRepository
             Token = token,
             UserId = userId,
             Expires = DateTime.Now.AddDays(7),
-            AccessTokens = [ accessToken ],
+            AccessToken = accessToken,
         };
         
         var insert = _refreshTokenCollection?.InsertOneAsync(refreshToken);

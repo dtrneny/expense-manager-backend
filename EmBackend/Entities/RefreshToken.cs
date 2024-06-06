@@ -23,7 +23,7 @@ public class RefreshToken
     [JsonPropertyName("expires")]
     public DateTime Expires { get; set; }
 
-    [BsonElement("access_tokens")]
-    [JsonPropertyName("access_tokens")]
-    public List<string> AccessTokens { get; set; } = [];
+    [BsonElement("access_token")]
+    [JsonPropertyName("access_token")]
+    public required string AccessToken { get; set; }
 }
