@@ -49,6 +49,14 @@ public class CategoriesController: ControllerBase
         if (categoryValidationResult == null) { return StatusCode(500); }
         if (!categoryValidationResult.IsValid) { return BadRequest(categoryValidationResult.Errors); }
         
+        var existenceFilter = EntityOperationBuilder<Category>.BuildFilterDefinition(builder =>
+            builder.Where(category => category.OwnerId == data.OwnerId && category.Name == data.Name)
+        );
+        if (existenceFilter == null) { return BadRequest("The provided data could not be utilized for filter."); }
+        
+        var alreadyExistingCategory = await _categoryRepository.GetOne(existenceFilter);
+        if (alreadyExistingCategory != null) { return BadRequest("Category with provided name already exists."); }
+        
         var category = await _categoryRepository.Create(categoryData);
         if (category == null) { return Problem("Category could not be created."); }
         

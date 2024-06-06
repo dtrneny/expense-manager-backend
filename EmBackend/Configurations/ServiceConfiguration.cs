@@ -30,4 +30,9 @@ public static class ServiceConfiguration
     {
         services.AddScoped<JwtService>();
     }
+    
+    public static void ConfigureBaseServices(this IServiceCollection services)
+    {
+        services.AddScoped<FileService>();
+    }
 }

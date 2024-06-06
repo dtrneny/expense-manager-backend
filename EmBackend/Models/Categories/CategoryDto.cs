@@ -5,5 +5,6 @@ namespace EmBackend.Models.Categories;
 public record CategoryDto (
     string Id,
     string Name,
-    CategoryOwnership Ownership
+    CategoryOwnership Ownership,
+    string? OwnerId
 );
