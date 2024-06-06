@@ -1,7 +1,7 @@
 using Asp.Versioning;
 using EmBackend.Entities;
+using EmBackend.Entities.Helpers;
 using EmBackend.Models.Categories;
-using EmBackend.Models.Statistics.Responses;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Interfaces;
 using EmBackend.Services;
@@ -9,6 +9,7 @@ using EmBackend.Utilities;
 using EmBackend.Utilities.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using ScottPlot;
 
 namespace EmBackend.Controllers.V1;
 
@@ -21,25 +22,25 @@ public class StatisticsController : ControllerBase
     private readonly IRepository<Movement> _movementRepository;
     private readonly IRepository<Category> _categoryRepository;
     private readonly AuthRepository _authRepository;
-    private readonly EntityMapper _entityMapper;
-    private StatisticsService _statisticsService;
+    private readonly ZipUtility _zipUtility;
+    private readonly StatisticsService _statisticsService;
 
     public StatisticsController(
         IRepository<Movement> movementRepository,
         IRepository<Category> categoryRepository,
         AuthRepository authRepository,
-        EntityMapper entityMapper
+        ZipUtility zipUtility
     )
     {
         _movementRepository = movementRepository;
         _categoryRepository = categoryRepository;
         _authRepository = authRepository;
-        _entityMapper = entityMapper;
+        _zipUtility = zipUtility;
         _statisticsService = new StatisticsService();
     }
     
     [HttpGet]
-    public async Task<ActionResult<GetStatisticsResponse>> GetStatistics()
+    public async Task<ActionResult> GetStatistics()
     {
         var userId = _authRepository.JwtService.GetUserIdFromClaimsPrincipal(HttpContext.User);
         if (userId == null) { return Unauthorized(); }
@@ -53,51 +54,59 @@ public class StatisticsController : ControllerBase
         
         var movementList = movements.ToList();
         
-        var keyExpenseCategoryId = _statisticsService.GetKeyMovementCategoryId(movementList, MovementFilterType.Expense);
-        var keyIncomeCategoryId = _statisticsService.GetKeyMovementCategoryId(movementList, MovementFilterType.Income);
+        var categoryFilter = EntityOperationBuilder<Category>.BuildFilterDefinition(builder =>
+            builder.Where(movement => movement.Ownership == CategoryOwnership.Default || movement.OwnerId == userId)
+        );
+        if (categoryFilter == null) { return BadRequest("The provided data could not be utilized for filter."); }
 
-        CategoryDto? keyExpenseCategoryDto = null;
-
-        if (keyExpenseCategoryId != null)
-        {
-            var keyExpenseFilter = EntityOperationBuilder<Category>.BuildFilterDefinition(builder =>
-                builder.Eq(category => category.Id, keyExpenseCategoryId)
-            );
-            if (keyExpenseFilter != null)
-            {
-                var keyExpenseCategory = await _categoryRepository.GetOne(keyExpenseFilter);
-                if (keyExpenseCategory != null)
-                {
-                    keyExpenseCategoryDto = _entityMapper.CategoryMapper.MapCategoryToCategoryDto(keyExpenseCategory);
-                }
-            }
-        }
+        var categories = await _categoryRepository.GetAll(categoryFilter);
         
-        CategoryDto? keyIncomeCategoryDto = null;
-
-        if (keyIncomeCategoryId != null)
-        {
-            var keyIncomeFilter = EntityOperationBuilder<Category>.BuildFilterDefinition(builder =>
-                builder.Eq(category => category.Id, keyExpenseCategoryId)
-            );
-            if (keyIncomeFilter != null)
-            {
-                var keyIncomeCategory = await _categoryRepository.GetOne(keyIncomeFilter);
-                if (keyIncomeCategory != null)
-                {
-                    keyIncomeCategoryDto = _entityMapper.CategoryMapper.MapCategoryToCategoryDto(keyIncomeCategory);
-                }
-            }
-        }
+        var categoryCounts = movementList
+            .SelectMany(movement => movement.CategoryIds)
+            .GroupBy(id => id)
+            .Select(group => new { CategoryId = group.Key, Count = group.Count() })
+            .ToList();
+        
+        var categoryCountWithNames = categoryCounts
+            .Join(
+                categories,
+                count => count.CategoryId,
+                category => category.Id,
+                (count, category) => new { CategoryName = category.Name, count.Count }
+            )
+            .ToList();
         
         var overallExpenses = _statisticsService.GetMovementSum(movementList, MovementFilterType.Expense);
         var overallIncome = _statisticsService.GetMovementSum(movementList, MovementFilterType.Income);
 
-        return Ok(new GetStatisticsResponse(
-            keyExpenseCategoryDto, 
-            keyIncomeCategoryDto,
-            overallIncome,
-            overallExpenses
-        ));
+        List<PieSlice> expensesIncomeSlices =
+        [
+            new PieSlice { Value = -overallExpenses, FillColor = Colors.Red, Label = $"Expenses: { overallExpenses }" },
+            new PieSlice { Value = overallIncome, FillColor = Colors.Blue, Label = $"Income: { overallIncome }" }
+        ];
+
+        var piePlotImage = _statisticsService.GetPiePlot(expensesIncomeSlices, false, true, true);
+        
+        var bars = categoryCountWithNames
+            .Select((value, index) => new { value, index })
+            .Select(obj => (new Tick(obj.index, obj.value.CategoryName), obj.value.Count))
+            .ToList();
+        
+        var barPlotImage = _statisticsService.GetBarPlot(bars);
+
+        if (barPlotImage == null || piePlotImage == null) { return BadRequest(); }
+        
+        var barPlotBytes = barPlotImage.GetImageBytes();
+        var piePlotBytes = piePlotImage.GetImageBytes();
+        
+        var zipDict = new Dictionary<string, byte[]>
+        {
+            { "category_occurence_plot.jpeg", barPlotBytes },
+            { "expenses_x_income_plot.jpeg", piePlotBytes }
+        };
+
+        var zip = _zipUtility.CreateZipFromByteArrays(zipDict);
+        
+        return File(zip, "application/zip", "plots.zip");
     }
 }

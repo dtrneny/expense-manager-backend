@@ -9,6 +9,7 @@ public static class UtilitiesConfiguration
     {
         services.AddScoped<Validation>();
         services.AddScoped<EntityMapper>();
+        services.AddScoped<ZipUtility>();
     }
     
     public static void ConfigureSwagger(this IServiceCollection services)
