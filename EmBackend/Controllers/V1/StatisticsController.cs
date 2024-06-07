@@ -22,20 +22,17 @@ public class StatisticsController : ControllerBase
     private readonly IRepository<Movement> _movementRepository;
     private readonly IRepository<Category> _categoryRepository;
     private readonly AuthRepository _authRepository;
-    private readonly CompressionUtility _compressionUtility;
     private readonly StatisticsService _statisticsService;
 
     public StatisticsController(
         IRepository<Movement> movementRepository,
         IRepository<Category> categoryRepository,
-        AuthRepository authRepository,
-        CompressionUtility compressionUtility
+        AuthRepository authRepository
     )
     {
         _movementRepository = movementRepository;
         _categoryRepository = categoryRepository;
         _authRepository = authRepository;
-        _compressionUtility = compressionUtility;
         _statisticsService = new StatisticsService();
     }
     
@@ -105,7 +102,7 @@ public class StatisticsController : ControllerBase
             { "expenses_x_income_plot.jpeg", piePlotBytes }
         };
 
-        var zip = _compressionUtility.CreateZipFromByteArrays(zipDict);
+        var zip = CompressionUtility.CreateZipFromByteArrays(zipDict);
         
         return File(zip, "application/zip", "plots.zip");
     }

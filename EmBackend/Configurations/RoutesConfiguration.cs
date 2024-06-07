@@ -15,21 +15,7 @@ public static class RoutesConfiguration
             options.GroupNameFormat = "'v'V";
             options.SubstituteApiVersionInUrl = true;
         });
-
         
         services.Configure<RouteOptions>(options => options.LowercaseUrls = true);
-    }
-    
-    public static void ConfigureCors(this IServiceCollection services)
-    {
-        services.AddCors(options => {
-            options.AddPolicy(name: "cors", policy =>
-            {
-                policy
-                    .WithOrigins("http://localhost:5173")
-                    .AllowAnyHeader()
-                    .AllowAnyMethod();
-            });
-        });
     }
 }

@@ -3,9 +3,9 @@ using System.IO.Compression;
 
 namespace EmBackend.Utilities;
 
-public class CompressionUtility
+public static class CompressionUtility
 {
-    public byte[] CreateZipFromByteArrays(Dictionary<string, byte[]> namedByteArrays)
+    public static byte[] CreateZipFromByteArrays(Dictionary<string, byte[]> namedByteArrays)
     {
         using var memoryStream = new MemoryStream();
         using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, true))
