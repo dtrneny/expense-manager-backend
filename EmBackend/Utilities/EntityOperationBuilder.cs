@@ -24,8 +24,14 @@ public static class EntityOperationBuilder<T>
         UpdateDefinition<T>? update = null;
         foreach (var change in changesDocument)
         {
-            if (update == null) { update = builder.Set(change.Name, change.Value); }
-            else { update = update.Set(change.Name, change.Value); }
+            if (update == null)
+            {
+                update = builder.Set(change.Name, change.Value);
+            }
+            else
+            {
+                update = update.Set(change.Name, change.Value);
+            }
         }
 
         return update;

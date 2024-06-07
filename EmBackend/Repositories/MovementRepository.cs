@@ -29,10 +29,8 @@ public class MovementRepository: IRepository<Movement>
     {
         var updateTask = _movementsCollection?.FindOneAndUpdateAsync(filter, update);
         if (updateTask == null) { return null; }
-      
-        var updateResult = await updateTask;
         
-        return updateResult;
+        return await updateTask;
     }
 
     public async Task<Movement?> GetOne(FilterDefinition<Movement> filter)
@@ -46,7 +44,6 @@ public class MovementRepository: IRepository<Movement>
         if (_movementsCollection == null) { return []; }
         
         var movements = _movementsCollection.Find(_ => true)?.ToListAsync();
-    
         if (movements == null) { return []; }
         
         return await movements;
@@ -57,7 +54,6 @@ public class MovementRepository: IRepository<Movement>
         if (_movementsCollection == null) { return []; }
         
         var movements = _movementsCollection.Find(filter)?.ToListAsync();
-    
         if (movements == null) { return []; }
         
         return await movements;

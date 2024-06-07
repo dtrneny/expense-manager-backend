@@ -20,7 +20,6 @@ public class UserRepository: IRepository<User>
     public async Task<User?> Create(User user)
     {
         var hashedPassword = _hashService.Hash(user.Password);
-
         if (hashedPassword == null) { return null; }
 
         user.Password = hashedPassword;
@@ -37,10 +36,8 @@ public class UserRepository: IRepository<User>
     {
         var updateTask = _usersCollection?.FindOneAndUpdateAsync(filter, update);
         if (updateTask == null) { return null; }
-
-        var updateResult = await updateTask;
         
-        return updateResult;
+        return await updateTask;
     }
 
     public async Task<User?> GetOne(FilterDefinition<User> filter)
@@ -54,7 +51,6 @@ public class UserRepository: IRepository<User>
         if (_usersCollection == null) { return []; }
         
         var users = _usersCollection.Find(_ => true)?.ToListAsync();
-    
         if (users == null) { return []; }
         
         return await users;
@@ -65,7 +61,6 @@ public class UserRepository: IRepository<User>
         if (_usersCollection == null) { return []; }
         
         var users = _usersCollection.Find(filter)?.ToListAsync();
-    
         if (users == null) { return []; }
         
         return await users;

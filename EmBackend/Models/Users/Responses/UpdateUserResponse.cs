@@ -1,5 +1,5 @@
 namespace EmBackend.Models.Users.Responses;
 
-public record UpdateUserResponse(
+public record UpdateUserResponse (
     UserDto User
 );

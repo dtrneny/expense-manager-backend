@@ -1,6 +1,6 @@
 namespace EmBackend.Models.Exports.Movements;
 
-public record ExportMovementDto(
+public record ExportMovementDto (
     string Id,
     double Amount,
     string Label,

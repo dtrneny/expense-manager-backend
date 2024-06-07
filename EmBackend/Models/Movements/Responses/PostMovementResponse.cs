@@ -1,5 +1,5 @@
 namespace EmBackend.Models.Movements.Responses;
 
-public record PostMovementResponse(
+public record PostMovementResponse (
     MovementDto Movement
 );

@@ -3,6 +3,7 @@ using EmBackend.Entities;
 using EmBackend.Models;
 using EmBackend.Models.Auth.Requests;
 using EmBackend.Models.Auth.Responses;
+using EmBackend.Models.Helpers;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Interfaces;
 using EmBackend.Services.Interfaces;

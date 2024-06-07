@@ -2,7 +2,7 @@ using EmBackend.Entities.Helpers;
 
 namespace EmBackend.Models.Categories.Requests;
 
-public record UpdateCategoryRequest(
+public record UpdateCategoryRequest (
     string? Name,
     CategoryOwnership Ownership,
     string? OwnerId

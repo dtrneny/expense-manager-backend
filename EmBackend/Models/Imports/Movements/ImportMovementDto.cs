@@ -1,6 +1,6 @@
 namespace EmBackend.Models.Imports.Movements;
 
-public record ImportMovementDto(
+public record ImportMovementDto (
     double Amount,
     string Label,
     DateTime Timestamp,

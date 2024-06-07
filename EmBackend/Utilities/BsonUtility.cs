@@ -14,10 +14,7 @@ public static class BsonUtility
             var name = property.Name;
             var value = property.GetValue(record);
 
-            if (value is not null)
-            {
-                bsonDocument.Add(name, BsonValue.Create(value));
-            }
+            if (value is not null) { bsonDocument.Add(name, BsonValue.Create(value)); }
         }
 
         return bsonDocument;

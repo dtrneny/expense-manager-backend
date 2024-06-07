@@ -28,10 +28,8 @@ public class CategoryRepository: IRepository<Category>
     {
         var updateTask = _categoriesCollection?.FindOneAndUpdateAsync(filter, update);
         if (updateTask == null) { return null; }
-      
-        var updateResult = await updateTask;
         
-        return updateResult;
+        return await updateTask;
     }
 
     public async Task<Category?> GetOne(FilterDefinition<Category> filter)
@@ -45,7 +43,6 @@ public class CategoryRepository: IRepository<Category>
         if (_categoriesCollection == null) { return []; }
         
         var categories = _categoriesCollection.Find(_ => true)?.ToListAsync();
-    
         if (categories == null) { return []; }
         
         return await categories;
@@ -56,7 +53,6 @@ public class CategoryRepository: IRepository<Category>
         if (_categoriesCollection == null) { return []; }
         
         var categories = _categoriesCollection.Find(filter)?.ToListAsync();
-    
         if (categories == null) { return []; }
         
         return await categories;

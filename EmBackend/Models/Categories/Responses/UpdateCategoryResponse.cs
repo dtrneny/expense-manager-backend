@@ -1,5 +1,5 @@
 namespace EmBackend.Models.Categories.Responses;
 
-public record UpdateCategoryResponse(
+public record UpdateCategoryResponse (
     CategoryDto Category
 );

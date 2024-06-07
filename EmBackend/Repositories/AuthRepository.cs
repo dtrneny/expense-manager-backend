@@ -45,7 +45,6 @@ public class AuthRepository
         
         var refreshTokenString = JwtService.GenerateRefreshToken();
         var refreshToken = await CreateRefreshToken(refreshTokenString, user.Id, accessToken);
-
         if (refreshToken == null) { return null;}
         
         return (accessToken, refreshTokenString);
@@ -75,15 +74,13 @@ public class AuthRepository
     {
         var updateTask = _refreshTokenCollection?.FindOneAndUpdateAsync(filter, update);
         if (updateTask == null) { return null; }
-      
-        var updateResult = await updateTask;
         
-        return updateResult;
+        return await updateTask;
     }
     
     public async Task<RefreshToken?> CreateRefreshToken(string token, string userId, string accessToken)
     {
-        var refreshToken = new RefreshToken()
+        var refreshToken = new RefreshToken
         {
             Token = token,
             UserId = userId,
@@ -104,7 +101,6 @@ public class AuthRepository
         if (_refreshTokenCollection == null) { return []; }
         
         var tokens = _refreshTokenCollection.Find(filter)?.ToListAsync();
-    
         if (tokens == null) { return []; }
         
         return await tokens;
