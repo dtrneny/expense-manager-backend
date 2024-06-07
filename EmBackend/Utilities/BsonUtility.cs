@@ -2,7 +2,7 @@ using MongoDB.Bson;
 
 namespace EmBackend.Utilities;
 
-public static class BsonUtilities
+public static class BsonUtility
 {
     public static BsonDocument ToBsonDocument<T>(T record)
     {

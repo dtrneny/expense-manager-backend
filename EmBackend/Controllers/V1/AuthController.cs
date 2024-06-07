@@ -5,7 +5,7 @@ using EmBackend.Models.Auth.Requests;
 using EmBackend.Models.Auth.Responses;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Interfaces;
-using EmBackend.Services.HashService;
+using EmBackend.Services.Interfaces;
 using EmBackend.Utilities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;

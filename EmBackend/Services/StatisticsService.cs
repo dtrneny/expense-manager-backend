@@ -25,7 +25,7 @@ public class StatisticsService
         return sum;
     }
 
-    public Image? GetPiePlot(List<PieSlice> slices, bool showLegend, bool frameless, bool showLables)
+    public Image GetPiePlot(List<PieSlice> slices, bool showLegend, bool frameless, bool showLables)
     {
         Plot plot = new();
         
@@ -40,7 +40,7 @@ public class StatisticsService
         return plot.GetImage(400, 300);
     }
     
-    public Image? GetBarPlot(List<(Tick tick, int value)> bars)
+    public Image GetBarPlot(List<(Tick tick, int value)> bars)
     {
         Plot plot = new();
 

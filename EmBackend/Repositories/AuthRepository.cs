@@ -41,6 +41,8 @@ public class AuthRepository
         if (user.Id == null) { return null; }
         
         var accessToken = JwtService.GenerateAccessToken(user.Id);
+        if (accessToken == null) { return null; }
+        
         var refreshTokenString = JwtService.GenerateRefreshToken();
         var refreshToken = await CreateRefreshToken(refreshTokenString, user.Id, accessToken);
 
@@ -53,18 +55,20 @@ public class AuthRepository
     {
         var tokens = await GetAll(filter);
         var token = tokens?.FirstOrDefault();
-
         if (token == null) { return null; }
-        var accessToken = JwtService.GenerateAccessToken(token.UserId);
         
-        var changesDocument = BsonUtilities.ToBsonDocument(new { AccessToken = accessToken });
+        var accessToken = JwtService.GenerateAccessToken(token.UserId);
+        if (accessToken == null) { return null; }
+        
+        var changesDocument = BsonUtility.ToBsonDocument(new { AccessToken = accessToken });
         var update = EntityOperationBuilder<RefreshToken>.BuildUpdateDefinition(changesDocument);
         if (update == null) { return null; }
 
         var updateResult = await Update(update, filter);
-        if (updateResult == null) { return null; }
         
-        return accessToken;
+        return updateResult != null
+            ? accessToken
+            : null;
     }
     
     public async Task<RefreshToken?> Update(UpdateDefinition<RefreshToken> update, FilterDefinition<RefreshToken> filter)

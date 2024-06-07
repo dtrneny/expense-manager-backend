@@ -1,6 +1,7 @@
+using EmBackend.Services.Interfaces;
 using Scrypt;
 
-namespace EmBackend.Services.HashService;
+namespace EmBackend.Services;
 
 public class HashService: IHashService
 {

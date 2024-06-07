@@ -73,7 +73,7 @@ public class CategoriesController: ControllerBase
         if (updateValidationResult == null) { return StatusCode(500); }
         if (!updateValidationResult.IsValid) { return BadRequest(updateValidationResult.Errors); }
         
-        var changesDocument = BsonUtilities.ToBsonDocument(data);
+        var changesDocument = BsonUtility.ToBsonDocument(data);
         var update = EntityOperationBuilder<Category>.BuildUpdateDefinition(changesDocument);
         var filter = EntityOperationBuilder<Category>.BuildFilterDefinition(builder =>
             builder.Eq(category => category.Id, id)

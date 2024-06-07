@@ -168,7 +168,7 @@ public class ImportController : ControllerBase
         var finalBalanceChange = newMovements.Sum(movement => movement.Amount);
 
         var updateRequest = new UpdateUserRequest(null, null, null, Balance: user.Balance + finalBalanceChange);
-        var changesDocument = BsonUtilities.ToBsonDocument(updateRequest);
+        var changesDocument = BsonUtility.ToBsonDocument(updateRequest);
         var update = EntityOperationBuilder<User>.BuildUpdateDefinition(changesDocument);
         if (update == null) { return BadRequest("The provided data could not be utilized for update."); }
         

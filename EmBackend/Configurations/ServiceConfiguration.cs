@@ -1,6 +1,6 @@
 using EmBackend.Models.Helpers;
 using EmBackend.Services;
-using EmBackend.Services.HashService;
+using EmBackend.Services.Interfaces;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
 

@@ -1,7 +1,7 @@
 using EmBackend.Entities;
 using EmBackend.Repositories.Interfaces;
 using EmBackend.Services;
-using EmBackend.Services.HashService;
+using EmBackend.Services.Interfaces;
 using MongoDB.Driver;
 
 namespace EmBackend.Repositories;

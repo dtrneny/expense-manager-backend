@@ -1,4 +1,4 @@
-namespace EmBackend.Services.HashService;
+namespace EmBackend.Services.Interfaces;
 
 public interface IHashService
 {

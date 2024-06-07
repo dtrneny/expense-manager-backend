@@ -63,7 +63,7 @@ public class MovementsController: ControllerBase
         if (!movementValidationResult.IsValid) { return BadRequest(movementValidationResult.Errors); }
 
         var updateRequest = new UpdateUserRequest(null, null, null, Balance: user.Balance + data.Amount);
-        var changesDocument = BsonUtilities.ToBsonDocument(updateRequest);
+        var changesDocument = BsonUtility.ToBsonDocument(updateRequest);
         var update = EntityOperationBuilder<User>.BuildUpdateDefinition(changesDocument);
         if (update == null) { return BadRequest("The provided data could not be utilized for update."); }
         
@@ -110,7 +110,7 @@ public class MovementsController: ControllerBase
         if (updateValidationResult == null) { return StatusCode(500); }
         if (!updateValidationResult.IsValid) { return BadRequest(updateValidationResult.Errors); }
         
-        var changesDocument = BsonUtilities.ToBsonDocument(data);
+        var changesDocument = BsonUtility.ToBsonDocument(data);
         var update = EntityOperationBuilder<Movement>.BuildUpdateDefinition(changesDocument);
         var filter = EntityOperationBuilder<Movement>.BuildFilterDefinition(builder =>
             builder.Eq(category => category.Id, id)

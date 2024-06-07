@@ -67,7 +67,7 @@ public class UsersController: ControllerBase
         if (updateValidationResult == null) { return StatusCode(500); }
         if (!updateValidationResult.IsValid) { return BadRequest(updateValidationResult.Errors); }
         
-        var changesDocument = BsonUtilities.ToBsonDocument(data);
+        var changesDocument = BsonUtility.ToBsonDocument(data);
         var update = EntityOperationBuilder<User>.BuildUpdateDefinition(changesDocument);
         var filter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
             builder.Eq(user => user.Id, id)

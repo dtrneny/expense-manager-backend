@@ -19,7 +19,7 @@ public class JwtService
         _settings = settings;
     }
 
-    public string GenerateAccessToken(string userId)
+    public string? GenerateAccessToken(string userId)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         
@@ -40,15 +40,7 @@ public class JwtService
             signingCredentials: credentials
         );
         
-        var accessToken = tokenHandler.WriteToken(token);
-        
-        if (accessToken == null)
-        {
-            // TODO: resolve with safer exit
-            throw new Exception();
-        }
-
-        return accessToken;
+        return tokenHandler.WriteToken(token);
     }
 
     public string GenerateRefreshToken()

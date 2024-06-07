@@ -3,7 +3,7 @@ using System.IO.Compression;
 
 namespace EmBackend.Utilities;
 
-public class ZipUtility
+public class CompressionUtility
 {
     public byte[] CreateZipFromByteArrays(Dictionary<string, byte[]> namedByteArrays)
     {
