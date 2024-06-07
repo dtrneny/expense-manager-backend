@@ -1,11 +1,18 @@
+using EmBackend.Validation.Rules;
 using FluentValidation;
 
-namespace EmBackend.Validation.Validators.Movement;
+namespace EmBackend.Validation.Validators.Movements;
 
 public class MovementValidator: AbstractValidator<Entities.Movement>
 {
     public MovementValidator()
     {
+        When(movement => movement.Id != null, () =>
+        {
+            RuleFor(movement => movement.Id!)
+                .IsObjectId();
+        });
+        
         RuleFor(movement => movement.UserId)
             .NotNull()
             .NotEmpty();
@@ -19,5 +26,8 @@ public class MovementValidator: AbstractValidator<Entities.Movement>
         
         RuleFor(movement => movement.Timestamp)
             .NotNull();
+        
+        RuleForEach(movement => movement.CategoryIds)
+            .IsObjectId();
     }
 }

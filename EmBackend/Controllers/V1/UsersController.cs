@@ -65,6 +65,10 @@ public class UsersController: ControllerBase
     [HttpPatch("{id}")]
     public async Task<ActionResult<UpdateUserResponse>> UpdateUser(UpdateUserRequest data, string id)
     {
+        var idValidationResult = _modelValidation.ObjectIdValidator.Validate(id);
+        if (idValidationResult == null) { return StatusCode(500); }
+        if (!idValidationResult.IsValid) { return BadRequest(idValidationResult.Errors); }
+        
         var updateValidationResult = _modelValidation.UpdateUserValidator.Validate(data);
         if (updateValidationResult == null) { return StatusCode(500); }
         if (!updateValidationResult.IsValid) { return BadRequest(updateValidationResult.Errors); }
@@ -88,6 +92,10 @@ public class UsersController: ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<GetUsersResponse>> GetUser(string id)
     {
+        var idValidationResult = _modelValidation.ObjectIdValidator.Validate(id);
+        if (idValidationResult == null) { return StatusCode(500); }
+        if (!idValidationResult.IsValid) { return BadRequest(idValidationResult.Errors); }
+        
         var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<User>(builder =>
             builder.Eq(user => user.Id, id)
         );

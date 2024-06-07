@@ -1,18 +1,24 @@
 using EmBackend.Entities.Helpers;
-using EmBackend.Models.Categories.Requests;
+using EmBackend.Validation.Rules;
 using FluentValidation;
 
-namespace EmBackend.Validation.Validators.Category;
+namespace EmBackend.Validation.Validators.Categories;
 
-public class CategoryUpdateValidator: AbstractValidator<UpdateCategoryRequest>
+public class CategoryValidator: AbstractValidator<Entities.Category>
 {
-    public CategoryUpdateValidator()
+    public CategoryValidator()
     {
-        RuleFor(update => update.Name)
+        When(category => category.Id != null, () =>
+        {
+            RuleFor(category => category.Id!)
+                .IsObjectId();
+        });
+        
+        RuleFor(category => category.Name)
             .NotEmpty()
             .MaximumLength(15);
         
-        RuleFor(update => update.Ownership)
+        RuleFor(category => category.Ownership)
             .IsInEnum();
 
         When(category => category.Ownership == CategoryOwnership.User, () =>

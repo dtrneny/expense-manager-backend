@@ -108,6 +108,10 @@ public class MovementsController: ControllerBase
     [HttpPatch("{id}")]
     public async Task<ActionResult<UpdateMovementResponse>> UpdateMovement(UpdateMovementRequest data, string id)
     {
+        var idValidationResult = _modelValidation.ObjectIdValidator.Validate(id);
+        if (idValidationResult == null) { return StatusCode(500); }
+        if (!idValidationResult.IsValid) { return BadRequest(idValidationResult.Errors); }
+        
         var updateValidationResult = _modelValidation.UpdateMovementValidator.Validate(data);
         if (updateValidationResult == null) { return StatusCode(500); }
         if (!updateValidationResult.IsValid) { return BadRequest(updateValidationResult.Errors); }
@@ -131,6 +135,10 @@ public class MovementsController: ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteMovement(string id)
     {
+        var idValidationResult = _modelValidation.ObjectIdValidator.Validate(id);
+        if (idValidationResult == null) { return StatusCode(500); }
+        if (!idValidationResult.IsValid) { return BadRequest(idValidationResult.Errors); }
+        
         var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<Movement>(builder =>
             builder.Eq(movement => movement.Id, id)
         );

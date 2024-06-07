@@ -71,6 +71,10 @@ public class CategoriesController: ControllerBase
     [HttpPatch("{id}")]
     public async Task<ActionResult<UpdateCategoryResponse>> UpdateCategory(UpdateCategoryRequest data, string id)
     {
+        var idValidationResult = _modelValidation.ObjectIdValidator.Validate(id);
+        if (idValidationResult == null) { return StatusCode(500); }
+        if (!idValidationResult.IsValid) { return BadRequest(idValidationResult.Errors); }
+        
         var updateValidationResult = _modelValidation.UpdateCategoryValidator.Validate(data);
         if (updateValidationResult == null) { return StatusCode(500); }
         if (!updateValidationResult.IsValid) { return BadRequest(updateValidationResult.Errors); }
@@ -116,6 +120,10 @@ public class CategoriesController: ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteCategory(string id)
     {
+        var idValidationResult = _modelValidation.ObjectIdValidator.Validate(id);
+        if (idValidationResult == null) { return StatusCode(500); }
+        if (!idValidationResult.IsValid) { return BadRequest(idValidationResult.Errors); }
+        
         var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<Category>(builder =>
             builder.Where(category => category.Id == id && category.Ownership != CategoryOwnership.Default)
         );

@@ -1,7 +1,8 @@
 using EmBackend.Models.Movements.Requests;
+using EmBackend.Validation.Rules;
 using FluentValidation;
 
-namespace EmBackend.Validation.Validators.Movement;
+namespace EmBackend.Validation.Validators.Movements;
 
 public class MovementUpdateValidator: AbstractValidator<UpdateMovementRequest>
 {
@@ -16,5 +17,8 @@ public class MovementUpdateValidator: AbstractValidator<UpdateMovementRequest>
 
         RuleFor(movement => movement.Timestamp)
             .NotNull();
+        
+        RuleForEach(movement => movement.CategoryIds)
+            .IsObjectId();
     }
 }

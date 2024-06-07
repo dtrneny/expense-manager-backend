@@ -2,9 +2,10 @@ using EmBackend.Entities;
 using EmBackend.Models.Categories.Requests;
 using EmBackend.Models.Movements.Requests;
 using EmBackend.Models.Users.Requests;
-using EmBackend.Validation.Validators.Category;
-using EmBackend.Validation.Validators.Movement;
-using EmBackend.Validation.Validators.User;
+using EmBackend.Validation.Validators;
+using EmBackend.Validation.Validators.Categories;
+using EmBackend.Validation.Validators.Movements;
+using EmBackend.Validation.Validators.Users;
 using FluentValidation;
 
 namespace EmBackend.Validation;
@@ -17,6 +18,7 @@ public class ModelValidation
     public readonly IValidator<UpdateUserRequest> UpdateUserValidator;
     public readonly IValidator<UpdateMovementRequest> UpdateMovementValidator;
     public readonly IValidator<UpdateCategoryRequest> UpdateCategoryValidator;
+    public readonly ObjectIdValidator ObjectIdValidator;
     
     public ModelValidation()
     {
@@ -26,5 +28,6 @@ public class ModelValidation
         UpdateUserValidator = new UserUpdateValidator();
         UpdateMovementValidator = new MovementUpdateValidator();
         UpdateCategoryValidator = new CategoryUpdateValidator();
+        ObjectIdValidator = new ObjectIdValidator();
     }
 }
