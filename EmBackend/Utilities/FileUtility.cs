@@ -2,9 +2,9 @@
 using System.Text.Json;
 namespace EmBackend.Services;
 
-public class FileService
+public static class FileUtility
 {
-    public byte[] GetFileBytesFromObject<T>(T obj)
+    public static byte[] GetFileBytesFromObject<T>(T obj)
     {
         var jsonContent = JsonSerializer.Serialize(
             obj,
@@ -16,5 +16,4 @@ public class FileService
         
         return System.Text.Encoding.UTF8.GetBytes(jsonContent);
     }
-    
 }

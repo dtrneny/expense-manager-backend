@@ -24,14 +24,14 @@ public class ImportController : ControllerBase
     private readonly IRepository<Category> _categoryRepository;
     private readonly IRepository<User> _userRepository;
     private readonly AuthRepository _authRepository;
-    private readonly Validation _validation;
+    private readonly Validation.Validation _validation;
 
     public ImportController(
         IRepository<Movement> movementRepository,
         IRepository<Category> categoryRepository,
         IRepository<User> userRepository,
         AuthRepository authRepository,
-        Validation validation
+        Validation.Validation validation
     )
     {
         _movementRepository = movementRepository;
@@ -48,7 +48,7 @@ public class ImportController : ControllerBase
         var userId = _authRepository.JwtService.GetUserIdFromClaimsPrincipal(HttpContext.User);
         if (userId == null) { return Unauthorized(); }
         
-        var userFilter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
+        var userFilter = MongoDbDefinitionBuilder.BuildFilterDefinition<User>(builder =>
             builder.Eq(user => user.Id, userId)
         );
         if (userFilter == null) { return BadRequest("The provided data could not be utilized for filter."); }
@@ -61,7 +61,7 @@ public class ImportController : ControllerBase
             .Distinct()
             .ToList();
         
-        var existenceFilter = EntityOperationBuilder<Category>.BuildFilterDefinition(builder =>
+        var existenceFilter = MongoDbDefinitionBuilder.BuildFilterDefinition<Category>(builder =>
             builder.Where(category => 
                 (category.OwnerId == userId && categoryNames.Contains(category.Name)) ||
                 (category.Ownership == CategoryOwnership.Default && categoryNames.Contains(category.Name))
@@ -170,7 +170,7 @@ public class ImportController : ControllerBase
 
         var updateRequest = new UpdateUserRequest(null, null, null, Balance: user.Balance + finalBalanceChange);
         var changesDocument = BsonUtility.ToBsonDocument(updateRequest);
-        var update = EntityOperationBuilder<User>.BuildUpdateDefinition(changesDocument);
+        var update = MongoDbDefinitionBuilder.BuildUpdateDefinition<User>(changesDocument);
         if (update == null) { return BadRequest("The provided data could not be utilized for update."); }
         
         var userUpdate = await _userRepository.Update(update, userFilter);

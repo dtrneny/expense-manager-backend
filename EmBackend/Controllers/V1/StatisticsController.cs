@@ -42,7 +42,7 @@ public class StatisticsController : ControllerBase
         var userId = _authRepository.JwtService.GetUserIdFromClaimsPrincipal(HttpContext.User);
         if (userId == null) { return Unauthorized(); }
         
-        var filter = EntityOperationBuilder<Movement>.BuildFilterDefinition(builder =>
+        var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<Movement>(builder =>
             builder.Eq(movement => movement.UserId, userId)
         );
         if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
@@ -51,7 +51,7 @@ public class StatisticsController : ControllerBase
         
         var movementList = movements.ToList();
         
-        var categoryFilter = EntityOperationBuilder<Category>.BuildFilterDefinition(builder =>
+        var categoryFilter = MongoDbDefinitionBuilder.BuildFilterDefinition<Category>(builder =>
             builder.Where(movement => movement.Ownership == CategoryOwnership.Default || movement.OwnerId == userId)
         );
         if (categoryFilter == null) { return BadRequest("The provided data could not be utilized for filter."); }

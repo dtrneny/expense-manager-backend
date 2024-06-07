@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using EmBackend.Entities;
+using EmBackend.Mappers;
 using EmBackend.Models.Users.Requests;
 using EmBackend.Models.Users.Responses;
 using EmBackend.Repositories.Interfaces;
@@ -17,11 +18,11 @@ public class UsersController: ControllerBase
 {
     private readonly IRepository<User> _userRepository;
     private readonly EntityMapper _entityMapper;
-    private readonly Validation _validation;
+    private readonly Validation.Validation _validation;
     public UsersController(
         IRepository<User> userRepository,
         EntityMapper entityMapper,
-        Validation validation
+        Validation.Validation validation
     )
     {
         _userRepository = userRepository;
@@ -40,7 +41,7 @@ public class UsersController: ControllerBase
             Password = data.Password
         };
         
-        var emailFilter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
+        var emailFilter = MongoDbDefinitionBuilder.BuildFilterDefinition<User>(builder =>
             builder.Eq(user => user.Email, data.Email)
         );
         if (emailFilter == null) { return BadRequest("The provided data could not be utilized for filter."); }
@@ -68,8 +69,8 @@ public class UsersController: ControllerBase
         if (!updateValidationResult.IsValid) { return BadRequest(updateValidationResult.Errors); }
         
         var changesDocument = BsonUtility.ToBsonDocument(data);
-        var update = EntityOperationBuilder<User>.BuildUpdateDefinition(changesDocument);
-        var filter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
+        var update = MongoDbDefinitionBuilder.BuildUpdateDefinition<User>(changesDocument);
+        var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<User>(builder =>
             builder.Eq(user => user.Id, id)
         );
         if (filter == null || update == null) { return BadRequest("The provided data could not be utilized for filter or update."); }
@@ -86,7 +87,7 @@ public class UsersController: ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult<GetUsersResponse>> GetUser(string id)
     {
-        var filter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
+        var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<User>(builder =>
             builder.Eq(user => user.Id, id)
         );
         if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }

@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using EmBackend.Entities;
 using EmBackend.Entities.Helpers;
+using EmBackend.Mappers;
 using EmBackend.Models.Categories.Requests;
 using EmBackend.Models.Categories.Responses;
 using EmBackend.Repositories;
@@ -20,12 +21,12 @@ public class CategoriesController: ControllerBase
     private readonly IRepository<Category> _categoryRepository;
     private readonly AuthRepository _authRepository;
     private readonly EntityMapper _entityMapper;
-    private readonly Validation _validation;
+    private readonly Validation.Validation _validation;
     
     public CategoriesController(
         IRepository<Category> categoryRepository,
         AuthRepository authRepository,
-        Validation validation,
+        Validation.Validation validation,
         EntityMapper entityMapper
     )
     {
@@ -49,7 +50,7 @@ public class CategoriesController: ControllerBase
         if (categoryValidationResult == null) { return StatusCode(500); }
         if (!categoryValidationResult.IsValid) { return BadRequest(categoryValidationResult.Errors); }
         
-        var existenceFilter = EntityOperationBuilder<Category>.BuildFilterDefinition(builder =>
+        var existenceFilter = MongoDbDefinitionBuilder.BuildFilterDefinition<Category>(builder =>
             builder.Where(category => category.OwnerId == data.OwnerId && category.Name == data.Name)
         );
         if (existenceFilter == null) { return BadRequest("The provided data could not be utilized for filter."); }
@@ -74,8 +75,8 @@ public class CategoriesController: ControllerBase
         if (!updateValidationResult.IsValid) { return BadRequest(updateValidationResult.Errors); }
         
         var changesDocument = BsonUtility.ToBsonDocument(data);
-        var update = EntityOperationBuilder<Category>.BuildUpdateDefinition(changesDocument);
-        var filter = EntityOperationBuilder<Category>.BuildFilterDefinition(builder =>
+        var update = MongoDbDefinitionBuilder.BuildUpdateDefinition<Category>(changesDocument);
+        var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<Category>(builder =>
             builder.Eq(category => category.Id, id)
         );
         if (filter == null || update == null) { return BadRequest("The provided data could not be utilized for filter or update."); }
@@ -95,7 +96,7 @@ public class CategoriesController: ControllerBase
         var userId = _authRepository.JwtService.GetUserIdFromClaimsPrincipal(HttpContext.User);
         if (userId == null) { return Unauthorized(); }
         
-        var filter = EntityOperationBuilder<Category>.BuildFilterDefinition(builder =>
+        var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<Category>(builder =>
             builder.Where(category =>
                 category.Ownership == CategoryOwnership.Default ||
                 (category.Ownership == CategoryOwnership.User && category.OwnerId == userId)
@@ -114,7 +115,7 @@ public class CategoriesController: ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteCategory(string id)
     {
-        var filter = EntityOperationBuilder<Category>.BuildFilterDefinition(builder =>
+        var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<Category>(builder =>
             builder.Eq(category => category.Id, id)
         );
         if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }

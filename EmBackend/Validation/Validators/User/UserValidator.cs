@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace EmBackend.Utilities.Validators.UserValidators;
+namespace EmBackend.Validation.Validators.User;
 
 public class UserValidator: AbstractValidator<Entities.User>
 {

@@ -1,16 +1,13 @@
 using EmBackend.Entities;
 using EmBackend.Models.Categories.Requests;
-using EmBackend.Models.Movements;
 using EmBackend.Models.Movements.Requests;
 using EmBackend.Models.Users.Requests;
-using EmBackend.Utilities.Validators;
-using EmBackend.Utilities.Validators.Category;
-using EmBackend.Utilities.Validators.Movement;
-using EmBackend.Utilities.Validators.User;
-using EmBackend.Utilities.Validators.UserValidators;
+using EmBackend.Validation.Validators.Category;
+using EmBackend.Validation.Validators.Movement;
+using EmBackend.Validation.Validators.User;
 using FluentValidation;
 
-namespace EmBackend.Utilities;
+namespace EmBackend.Validation;
 
 public class Validation
 {

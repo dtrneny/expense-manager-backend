@@ -1,7 +1,7 @@
 using EmBackend.Models.Movements.Requests;
 using FluentValidation;
 
-namespace EmBackend.Utilities.Validators.Movement;
+namespace EmBackend.Validation.Validators.Movement;
 
 public class MovementUpdateValidator: AbstractValidator<UpdateMovementRequest>
 {

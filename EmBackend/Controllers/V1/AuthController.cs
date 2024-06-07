@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using EmBackend.Entities;
+using EmBackend.Mappers;
 using EmBackend.Models;
 using EmBackend.Models.Auth.Requests;
 using EmBackend.Models.Auth.Responses;
@@ -43,7 +44,7 @@ public class AuthController: ControllerBase
     [Route("login")]
     public async Task<ActionResult<LoginResponse>> Login(LoginRequest data)
     {
-        var filter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
+        var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<User>(builder =>
             builder.Eq(user => user.Email, data.Email)
         );
         if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
@@ -66,7 +67,7 @@ public class AuthController: ControllerBase
     [Route("refresh-access")]
     public async Task<ActionResult<RefreshAccessResponse>> RefreshAccess(RefreshAccessRequest data)
     {
-        var filter = EntityOperationBuilder<RefreshToken>.BuildFilterDefinition(builder =>
+        var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<RefreshToken>(builder =>
             builder.Eq(token => token.Token, data.RefreshToken)
         );
         if (filter == null) { return BadRequest(new MessageResponse("The provided data could not be utilized for filter.")); }
@@ -86,7 +87,7 @@ public class AuthController: ControllerBase
         var userId = _authRepository.JwtService.GetUserIdFromClaimsPrincipal(HttpContext.User);
         if (userId == null) { return Unauthorized(); }
         
-        var filter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
+        var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<User>(builder =>
             builder.Eq(user => user.Id, userId)
         );
         if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
@@ -109,7 +110,7 @@ public class AuthController: ControllerBase
         var token = await HttpContext.GetTokenAsync("access_token");
         if (token == null) { return Unauthorized("The token could not be authorized."); }
         
-        var filter = EntityOperationBuilder<RefreshToken>.BuildFilterDefinition(builder =>
+        var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<RefreshToken>(builder =>
             builder.Eq(refToken => refToken.AccessToken, token)
         );
         if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }

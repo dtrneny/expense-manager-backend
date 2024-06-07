@@ -20,19 +20,16 @@ public class ExportController : ControllerBase
     private readonly IRepository<Movement> _movementRepository;
     private readonly IRepository<Category> _categoryRepository;
     private readonly AuthRepository _authRepository;
-    private readonly FileService _fileService;
 
     public ExportController(
         IRepository<Movement> movementRepository,
         IRepository<Category> categoryRepository,
-        AuthRepository authRepository,
-        FileService fileService
+        AuthRepository authRepository
     )
     {
         _movementRepository = movementRepository;
         _categoryRepository = categoryRepository;
         _authRepository = authRepository;
-        _fileService = fileService;
     }
 
     [HttpGet]
@@ -42,10 +39,10 @@ public class ExportController : ControllerBase
         var userId = _authRepository.JwtService.GetUserIdFromClaimsPrincipal(HttpContext.User);
         if (userId == null) { return Unauthorized(); }
         
-        var movementFilter = EntityOperationBuilder<Movement>.BuildFilterDefinition(builder =>
+        var movementFilter = MongoDbDefinitionBuilder.BuildFilterDefinition<Movement>(builder =>
             builder.Eq(movement => movement.UserId, userId)
         );
-        var categoryFilter = EntityOperationBuilder<Category>.BuildFilterDefinition(builder =>
+        var categoryFilter = MongoDbDefinitionBuilder.BuildFilterDefinition<Category>(builder =>
             builder.Where(movement => movement.Ownership == CategoryOwnership.Default || movement.OwnerId == userId)
         );
         if (movementFilter == null || categoryFilter == null) { return BadRequest("The provided data could not be utilized for filter."); }
@@ -66,7 +63,7 @@ public class ExportController : ControllerBase
             return new ExportMovementDto(movement.Id!, movement.Amount, movement.Label, movement.Timestamp, categoryNames);
         });
         
-        var fileBytes = _fileService.GetFileBytesFromObject(new { exportedMovements = exportMovementDtos });
+        var fileBytes = FileUtility.GetFileBytesFromObject(new { exportedMovements = exportMovementDtos });
         
         return File(fileBytes, "application/json", "movements_export.json");
     }

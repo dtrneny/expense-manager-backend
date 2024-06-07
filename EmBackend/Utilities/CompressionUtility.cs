@@ -1,6 +1,5 @@
 using System.IO.Compression;
 
-
 namespace EmBackend.Utilities;
 
 public static class CompressionUtility

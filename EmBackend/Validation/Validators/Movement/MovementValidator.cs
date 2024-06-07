@@ -1,6 +1,6 @@
 using FluentValidation;
 
-namespace EmBackend.Utilities.Validators.Movement;
+namespace EmBackend.Validation.Validators.Movement;
 
 public class MovementValidator: AbstractValidator<Entities.Movement>
 {

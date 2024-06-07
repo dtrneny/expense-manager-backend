@@ -1,4 +1,5 @@
 using EmBackend.Entities;
+using EmBackend.Mappers;
 using EmBackend.Models.Helpers;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Interfaces;
@@ -28,14 +29,13 @@ public static class BaseApiConfiguration
     
     public static void ConfigureUtilities(this IServiceCollection services)
     {
-        services.AddScoped<Validation>();
+        services.AddScoped<Validation.Validation>();
         services.AddScoped<EntityMapper>();
     }
     
     public static void ConfigureServices(this IServiceCollection services)
     {
         services.AddScoped<JwtService>();
-        services.AddScoped<FileService>();
         services.AddScoped<IHashService, HashService>();
     }
     

@@ -1,5 +1,6 @@
 using Asp.Versioning;
 using EmBackend.Entities;
+using EmBackend.Mappers;
 using EmBackend.Models.Movements.Params;
 using EmBackend.Models.Movements.Requests;
 using EmBackend.Models.Movements.Responses;
@@ -22,13 +23,13 @@ public class MovementsController: ControllerBase
     private readonly IRepository<User> _userRepository;
     private readonly AuthRepository _authRepository;
     private readonly EntityMapper _entityMapper;
-    private readonly Validation _validation;
+    private readonly Validation.Validation _validation;
     
     public MovementsController(
         IRepository<Movement> movementRepository,
         IRepository<User> userRepository,
         AuthRepository authRepository,
-        Validation validation,
+        Validation.Validation validation,
         EntityMapper entityMapper
     )
     {
@@ -42,7 +43,7 @@ public class MovementsController: ControllerBase
     [HttpPost]
     public async Task<ActionResult<PostMovementResponse>> PostMovement(PostMovementRequest data)
     {
-        var userFilter = EntityOperationBuilder<User>.BuildFilterDefinition(builder =>
+        var userFilter = MongoDbDefinitionBuilder.BuildFilterDefinition<User>(builder =>
             builder.Eq(user => user.Id, data.UserId)
         );
         if (userFilter == null) { return BadRequest("The provided data could not be utilized for filter."); }
@@ -64,7 +65,7 @@ public class MovementsController: ControllerBase
 
         var updateRequest = new UpdateUserRequest(null, null, null, Balance: user.Balance + data.Amount);
         var changesDocument = BsonUtility.ToBsonDocument(updateRequest);
-        var update = EntityOperationBuilder<User>.BuildUpdateDefinition(changesDocument);
+        var update = MongoDbDefinitionBuilder.BuildUpdateDefinition<User>(changesDocument);
         if (update == null) { return BadRequest("The provided data could not be utilized for update."); }
         
         var movement = await _movementRepository.Create(movementData);
@@ -82,13 +83,13 @@ public class MovementsController: ControllerBase
     [HttpGet]
     public async Task<ActionResult<GetMovementsResponse>> GetMovements(GetMovementsParams queryParams)
     {
-        var query = QueryBuilder.BuildFilterDefinitionFromQuery<Movement, GetMovementsParams>(queryParams);
+        var query = MongoDbDefinitionBuilder.BuildFilterDefinitionFromQuery<Movement, GetMovementsParams>(queryParams);
         if (query == null) { return BadRequest("The provided data could not be utilized for query."); }
         
         var userId = _authRepository.JwtService.GetUserIdFromClaimsPrincipal(HttpContext.User);
         if (userId == null) { return Unauthorized(); }
         
-        var filter = EntityOperationBuilder<Movement>.BuildFilterDefinition(builder =>
+        var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<Movement>(builder =>
             builder.Eq(movement => movement.UserId, userId)
         );
         if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
@@ -111,8 +112,8 @@ public class MovementsController: ControllerBase
         if (!updateValidationResult.IsValid) { return BadRequest(updateValidationResult.Errors); }
         
         var changesDocument = BsonUtility.ToBsonDocument(data);
-        var update = EntityOperationBuilder<Movement>.BuildUpdateDefinition(changesDocument);
-        var filter = EntityOperationBuilder<Movement>.BuildFilterDefinition(builder =>
+        var update = MongoDbDefinitionBuilder.BuildUpdateDefinition<Movement>(changesDocument);
+        var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<Movement>(builder =>
             builder.Eq(category => category.Id, id)
         );
         if (filter == null || update == null) { return BadRequest("The provided data could not be utilized for filter or update."); }
@@ -129,7 +130,7 @@ public class MovementsController: ControllerBase
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteMovement(string id)
     {
-        var filter = EntityOperationBuilder<Movement>.BuildFilterDefinition(builder =>
+        var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<Movement>(builder =>
             builder.Eq(movement => movement.Id, id)
         );
         if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }

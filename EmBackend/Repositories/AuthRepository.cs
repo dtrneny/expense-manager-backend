@@ -60,7 +60,7 @@ public class AuthRepository
         if (accessToken == null) { return null; }
         
         var changesDocument = BsonUtility.ToBsonDocument(new { AccessToken = accessToken });
-        var update = EntityOperationBuilder<RefreshToken>.BuildUpdateDefinition(changesDocument);
+        var update = MongoDbDefinitionBuilder.BuildUpdateDefinition<RefreshToken>(changesDocument);
         if (update == null) { return null; }
 
         var updateResult = await Update(update, filter);

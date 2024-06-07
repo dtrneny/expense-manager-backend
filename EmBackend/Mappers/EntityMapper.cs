@@ -1,6 +1,6 @@
-using EmBackend.Utilities.Mappers;
+using EmBackend.Mappers.SubMappers;
 
-namespace EmBackend.Utilities;
+namespace EmBackend.Mappers;
 
 public class EntityMapper
 {
