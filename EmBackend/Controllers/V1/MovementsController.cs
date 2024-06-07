@@ -8,6 +8,7 @@ using EmBackend.Models.Users.Requests;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Interfaces;
 using EmBackend.Utilities;
+using EmBackend.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -23,20 +24,20 @@ public class MovementsController: ControllerBase
     private readonly IRepository<User> _userRepository;
     private readonly AuthRepository _authRepository;
     private readonly EntityMapper _entityMapper;
-    private readonly Validation.Validation _validation;
+    private readonly ModelValidation _modelValidation;
     
     public MovementsController(
         IRepository<Movement> movementRepository,
         IRepository<User> userRepository,
         AuthRepository authRepository,
-        Validation.Validation validation,
+        ModelValidation modelValidation,
         EntityMapper entityMapper
     )
     {
         _movementRepository = movementRepository;
         _userRepository = userRepository;
         _authRepository = authRepository;
-        _validation = validation;
+        _modelValidation = modelValidation;
         _entityMapper = entityMapper;
     }
 
@@ -59,7 +60,7 @@ public class MovementsController: ControllerBase
             CategoryIds = data.CategoryIds
         };
         
-        var movementValidationResult = _validation.MovementValidator.Validate(movementData);
+        var movementValidationResult = _modelValidation.MovementValidator.Validate(movementData);
         if (movementValidationResult == null) { return StatusCode(500); }
         if (!movementValidationResult.IsValid) { return BadRequest(movementValidationResult.Errors); }
 
@@ -107,7 +108,7 @@ public class MovementsController: ControllerBase
     [HttpPatch("{id}")]
     public async Task<ActionResult<UpdateMovementResponse>> UpdateMovement(UpdateMovementRequest data, string id)
     {
-        var updateValidationResult = _validation.UpdateMovementValidator.Validate(data);
+        var updateValidationResult = _modelValidation.UpdateMovementValidator.Validate(data);
         if (updateValidationResult == null) { return StatusCode(500); }
         if (!updateValidationResult.IsValid) { return BadRequest(updateValidationResult.Errors); }
         

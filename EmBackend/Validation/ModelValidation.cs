@@ -9,7 +9,7 @@ using FluentValidation;
 
 namespace EmBackend.Validation;
 
-public class Validation
+public class ModelValidation
 {
     public readonly IValidator<Movement> MovementValidator;
     public readonly IValidator<Category> CategoryValidator;
@@ -18,7 +18,7 @@ public class Validation
     public readonly IValidator<UpdateMovementRequest> UpdateMovementValidator;
     public readonly IValidator<UpdateCategoryRequest> UpdateCategoryValidator;
     
-    public Validation()
+    public ModelValidation()
     {
         MovementValidator = new MovementValidator();
         CategoryValidator = new CategoryValidator();

@@ -5,6 +5,7 @@ using EmBackend.Models.Users.Requests;
 using EmBackend.Models.Users.Responses;
 using EmBackend.Repositories.Interfaces;
 using EmBackend.Utilities;
+using EmBackend.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,16 +19,16 @@ public class UsersController: ControllerBase
 {
     private readonly IRepository<User> _userRepository;
     private readonly EntityMapper _entityMapper;
-    private readonly Validation.Validation _validation;
+    private readonly ModelValidation _modelValidation;
     public UsersController(
         IRepository<User> userRepository,
         EntityMapper entityMapper,
-        Validation.Validation validation
+        ModelValidation modelValidation
     )
     {
         _userRepository = userRepository;
         _entityMapper = entityMapper;
-        _validation = validation;
+        _modelValidation = modelValidation;
     }
     
     [AllowAnonymous]
@@ -48,7 +49,7 @@ public class UsersController: ControllerBase
         var users = await _userRepository.GetAll(emailFilter);
         if (users.Any()) { return BadRequest("Provided email is unavailable."); }
 
-        var userValidationResult = _validation.UserValidator.Validate(userData);
+        var userValidationResult = _modelValidation.UserValidator.Validate(userData);
         if (userValidationResult == null) { return StatusCode(500); }
         if (!userValidationResult.IsValid) { return BadRequest(userValidationResult.Errors); }
         
@@ -64,7 +65,7 @@ public class UsersController: ControllerBase
     [HttpPatch("{id}")]
     public async Task<ActionResult<UpdateUserResponse>> UpdateUser(UpdateUserRequest data, string id)
     {
-        var updateValidationResult = _validation.UpdateUserValidator.Validate(data);
+        var updateValidationResult = _modelValidation.UpdateUserValidator.Validate(data);
         if (updateValidationResult == null) { return StatusCode(500); }
         if (!updateValidationResult.IsValid) { return BadRequest(updateValidationResult.Errors); }
         

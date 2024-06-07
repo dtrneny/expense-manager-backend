@@ -7,6 +7,7 @@ using EmBackend.Models.Categories.Responses;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Interfaces;
 using EmBackend.Utilities;
+using EmBackend.Validation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,18 +22,18 @@ public class CategoriesController: ControllerBase
     private readonly IRepository<Category> _categoryRepository;
     private readonly AuthRepository _authRepository;
     private readonly EntityMapper _entityMapper;
-    private readonly Validation.Validation _validation;
+    private readonly ModelValidation _modelValidation;
     
     public CategoriesController(
         IRepository<Category> categoryRepository,
         AuthRepository authRepository,
-        Validation.Validation validation,
+        ModelValidation modelValidation,
         EntityMapper entityMapper
     )
     {
         _categoryRepository = categoryRepository;
         _authRepository = authRepository;
-        _validation = validation;
+        _modelValidation = modelValidation;
         _entityMapper = entityMapper;
     }
     
@@ -46,7 +47,7 @@ public class CategoriesController: ControllerBase
             Ownership = data.Ownership
         };
         
-        var categoryValidationResult = _validation.CategoryValidator.Validate(categoryData);
+        var categoryValidationResult = _modelValidation.CategoryValidator.Validate(categoryData);
         if (categoryValidationResult == null) { return StatusCode(500); }
         if (!categoryValidationResult.IsValid) { return BadRequest(categoryValidationResult.Errors); }
         
@@ -70,19 +71,19 @@ public class CategoriesController: ControllerBase
     [HttpPatch("{id}")]
     public async Task<ActionResult<UpdateCategoryResponse>> UpdateCategory(UpdateCategoryRequest data, string id)
     {
-        var updateValidationResult = _validation.UpdateCategoryValidator.Validate(data);
+        var updateValidationResult = _modelValidation.UpdateCategoryValidator.Validate(data);
         if (updateValidationResult == null) { return StatusCode(500); }
         if (!updateValidationResult.IsValid) { return BadRequest(updateValidationResult.Errors); }
         
         var changesDocument = BsonUtility.ToBsonDocument(data);
         var update = MongoDbDefinitionBuilder.BuildUpdateDefinition<Category>(changesDocument);
         var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<Category>(builder =>
-            builder.Eq(category => category.Id, id)
+            builder.Where(category => category.Id == id && category.Ownership != CategoryOwnership.Default)
         );
         if (filter == null || update == null) { return BadRequest("The provided data could not be utilized for filter or update."); }
         
         var category = await _categoryRepository.Update(update, filter);
-        if (category == null) { return Problem("Category could not be updated."); }
+        if (category == null) { return BadRequest("Category could not be updated."); }
         
         var categoryDto = _entityMapper.CategoryMapper.MapCategoryToCategoryDto(category);
         if (categoryDto == null) { return StatusCode(500); }
@@ -116,12 +117,13 @@ public class CategoriesController: ControllerBase
     public async Task<ActionResult> DeleteCategory(string id)
     {
         var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<Category>(builder =>
-            builder.Eq(category => category.Id, id)
+            builder.Where(category => category.Id == id && category.Ownership != CategoryOwnership.Default)
         );
         if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
 
         var deleteResult = await _categoryRepository.Delete(filter);
         if (deleteResult == null) { return Problem("Category could not be deleted."); }
+        if (deleteResult.DeletedCount == 0) { return BadRequest("Category could not be deleted."); }
         
         return Ok("Category deleted.");
     }

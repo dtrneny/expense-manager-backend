@@ -8,6 +8,7 @@ using EmBackend.Models.Users.Requests;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Interfaces;
 using EmBackend.Utilities;
+using EmBackend.Validation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,21 +25,21 @@ public class ImportController : ControllerBase
     private readonly IRepository<Category> _categoryRepository;
     private readonly IRepository<User> _userRepository;
     private readonly AuthRepository _authRepository;
-    private readonly Validation.Validation _validation;
+    private readonly ModelValidation _modelValidation;
 
     public ImportController(
         IRepository<Movement> movementRepository,
         IRepository<Category> categoryRepository,
         IRepository<User> userRepository,
         AuthRepository authRepository,
-        Validation.Validation validation
+        ModelValidation modelValidation
     )
     {
         _movementRepository = movementRepository;
         _categoryRepository = categoryRepository;
         _userRepository = userRepository;
         _authRepository = authRepository;
-        _validation = validation;
+        _modelValidation = modelValidation;
     }
 
     [HttpPost]
@@ -87,7 +88,7 @@ public class ImportController : ControllerBase
                 Ownership = CategoryOwnership.User
             };
             
-            var categoryValidationResult = _validation.CategoryValidator.Validate(categoryData);
+            var categoryValidationResult = _modelValidation.CategoryValidator.Validate(categoryData);
             if (categoryValidationResult == null)
             {
                 categoryErrorsDict[name] = [];
@@ -141,7 +142,7 @@ public class ImportController : ControllerBase
                 CategoryIds = categoryIds
             };
             
-            var movementValidationResult = _validation.MovementValidator.Validate(movementData);
+            var movementValidationResult = _modelValidation.MovementValidator.Validate(movementData);
             if (movementValidationResult == null)
             {
                 movementErrorsDict[index.ToString()] = [];

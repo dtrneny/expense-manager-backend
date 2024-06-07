@@ -6,6 +6,7 @@ using EmBackend.Repositories.Interfaces;
 using EmBackend.Services;
 using EmBackend.Services.Interfaces;
 using EmBackend.Utilities;
+using EmBackend.Validation;
 using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Conventions;
@@ -29,7 +30,7 @@ public static class BaseApiConfiguration
     
     public static void ConfigureUtilities(this IServiceCollection services)
     {
-        services.AddScoped<Validation.Validation>();
+        services.AddScoped<ModelValidation>();
         services.AddScoped<EntityMapper>();
     }
     
