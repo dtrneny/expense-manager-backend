@@ -5,7 +5,6 @@ using EmBackend.Repositories;
 using EmBackend.Repositories.Interfaces;
 using EmBackend.Services;
 using EmBackend.Services.Interfaces;
-using EmBackend.Utilities;
 using EmBackend.Validation;
 using Microsoft.OpenApi.Models;
 using MongoDB.Bson;
@@ -46,19 +45,6 @@ public static class BaseApiConfiguration
         services.AddScoped<IRepository<User>, UserRepository>();
         services.AddScoped<IRepository<Movement>, MovementRepository>();
         services.AddScoped<IRepository<Category>, CategoryRepository>();
-    }
-    
-    public static void ConfigureCors(this IServiceCollection services)
-    {
-        services.AddCors(options => {
-            options.AddPolicy(name: "cors", policy =>
-            {
-                policy
-                    .WithOrigins("http://localhost:5173")
-                    .AllowAnyHeader()
-                    .AllowAnyMethod();
-            });
-        });
     }
     
     public static void ConfigureSwagger(this IServiceCollection services)

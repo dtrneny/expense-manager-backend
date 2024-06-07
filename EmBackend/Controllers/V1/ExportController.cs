@@ -4,7 +4,6 @@ using EmBackend.Entities.Helpers;
 using EmBackend.Models.Exports.Movements;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Interfaces;
-using EmBackend.Services;
 using EmBackend.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

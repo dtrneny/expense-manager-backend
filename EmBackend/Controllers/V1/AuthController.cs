@@ -1,7 +1,6 @@
 using Asp.Versioning;
 using EmBackend.Entities;
 using EmBackend.Mappers;
-using EmBackend.Models;
 using EmBackend.Models.Auth.Requests;
 using EmBackend.Models.Auth.Responses;
 using EmBackend.Models.Helpers;

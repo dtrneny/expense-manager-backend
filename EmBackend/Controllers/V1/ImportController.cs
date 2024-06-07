@@ -1,7 +1,6 @@
 using Asp.Versioning;
 using EmBackend.Entities;
 using EmBackend.Entities.Helpers;
-using EmBackend.Models;
 using EmBackend.Models.Helpers;
 using EmBackend.Models.Imports.Movements.Requests;
 using EmBackend.Models.Users.Requests;

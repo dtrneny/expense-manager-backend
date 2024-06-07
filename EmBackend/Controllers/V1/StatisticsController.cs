@@ -1,7 +1,6 @@
 using Asp.Versioning;
 using EmBackend.Entities;
 using EmBackend.Entities.Helpers;
-using EmBackend.Models.Categories;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Interfaces;
 using EmBackend.Services;
@@ -98,11 +97,11 @@ public class StatisticsController : ControllerBase
         
         var zipDict = new Dictionary<string, byte[]>
         {
-            { "category_occurence_plot.jpeg", barPlotBytes },
+            { "category_occurrence_plot.jpeg", barPlotBytes },
             { "expenses_x_income_plot.jpeg", piePlotBytes }
         };
 
-        var zip = CompressionUtility.CreateZipFromByteArrays(zipDict);
+        var zip = FileUtility.CreateZipFromByteArrays(zipDict);
         
         return File(zip, "application/zip", "plots.zip");
     }
