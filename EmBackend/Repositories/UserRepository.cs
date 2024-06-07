@@ -36,8 +36,11 @@ public class UserRepository: IRepository<User>
     {
         var updateTask = _usersCollection?.FindOneAndUpdateAsync(filter, update);
         if (updateTask == null) { return null; }
+
+        await updateTask;
         
-        return await updateTask;
+        var users = await GetAll(filter);
+        return users?.FirstOrDefault();
     }
 
     public async Task<User?> GetOne(FilterDefinition<User> filter)

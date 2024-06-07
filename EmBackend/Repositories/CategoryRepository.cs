@@ -29,7 +29,10 @@ public class CategoryRepository: IRepository<Category>
         var updateTask = _categoriesCollection?.FindOneAndUpdateAsync(filter, update);
         if (updateTask == null) { return null; }
         
-        return await updateTask;
+        await updateTask;
+        
+        var categories = await GetAll(filter);
+        return categories?.FirstOrDefault();
     }
 
     public async Task<Category?> GetOne(FilterDefinition<Category> filter)

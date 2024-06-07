@@ -30,7 +30,10 @@ public class MovementRepository: IRepository<Movement>
         var updateTask = _movementsCollection?.FindOneAndUpdateAsync(filter, update);
         if (updateTask == null) { return null; }
         
-        return await updateTask;
+        await updateTask;
+        
+        var movements = await GetAll(filter);
+        return movements?.FirstOrDefault();
     }
 
     public async Task<Movement?> GetOne(FilterDefinition<Movement> filter)

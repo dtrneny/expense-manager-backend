@@ -1,6 +1,7 @@
 
 using System.Text.Json;
-namespace EmBackend.Services;
+
+namespace EmBackend.Utilities;
 
 public static class FileUtility
 {
