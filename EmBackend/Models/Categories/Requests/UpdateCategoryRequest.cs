@@ -4,6 +4,6 @@ namespace EmBackend.Models.Categories.Requests;
 
 public record UpdateCategoryRequest (
     string? Name,
-    CategoryOwnership Ownership,
+    CategoryOwnership? Ownership,
     string? OwnerId
 );

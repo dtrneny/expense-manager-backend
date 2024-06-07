@@ -4,6 +4,7 @@ using EmBackend.Entities.Helpers;
 using EmBackend.Mappers;
 using EmBackend.Models.Categories.Requests;
 using EmBackend.Models.Categories.Responses;
+using EmBackend.Models.Helpers;
 using EmBackend.Repositories;
 using EmBackend.Repositories.Interfaces;
 using EmBackend.Utilities;
@@ -118,7 +119,7 @@ public class CategoriesController: ControllerBase
     }
     
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteCategory(string id)
+    public async Task<ActionResult<MessageResponse>> DeleteCategory(string id)
     {
         var idValidationResult = _modelValidation.ObjectIdValidator.Validate(id);
         if (idValidationResult == null) { return StatusCode(500); }
@@ -133,6 +134,6 @@ public class CategoriesController: ControllerBase
         if (deleteResult == null) { return Problem("Category could not be deleted."); }
         if (deleteResult.DeletedCount == 0) { return BadRequest("Category could not be deleted."); }
         
-        return Ok("Category deleted.");
+        return Ok(new MessageResponse("Category was deleted."));
     }
 }

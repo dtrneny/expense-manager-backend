@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using EmBackend.Entities;
 using EmBackend.Mappers;
+using EmBackend.Models.Helpers;
 using EmBackend.Models.Users.Requests;
 using EmBackend.Models.Users.Responses;
 using EmBackend.Repositories.Interfaces;
@@ -115,5 +116,24 @@ public class UsersController: ControllerBase
     {
         var result = await _userRepository.GetAll();
         return Ok(result.ToList());
+    }
+    
+    [HttpDelete("{id}")]
+    public async Task<ActionResult<MessageResponse>> DeleteUser(string id)
+    {
+        var idValidationResult = _modelValidation.ObjectIdValidator.Validate(id);
+        if (idValidationResult == null) { return StatusCode(500); }
+        if (!idValidationResult.IsValid) { return BadRequest(idValidationResult.Errors); }
+        
+        var filter = MongoDbDefinitionBuilder.BuildFilterDefinition<User>(builder =>
+            builder.Eq(user => user.Id, id)
+        );
+        if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
+
+        var deleteResult = await _userRepository.Delete(filter);
+        if (deleteResult == null) { return Problem("User could not be deleted."); }
+        if (deleteResult.DeletedCount == 0) { return BadRequest("User could not be deleted."); }
+
+        return Ok("User was deleted.");
     }
 }

@@ -17,7 +17,7 @@ public class Category
 
     [BsonElement("ownership")]
     [JsonPropertyName("ownership")]
-    public required CategoryOwnership Ownership { get; set; } = CategoryOwnership.Default;
+    public required CategoryOwnership Ownership { get; set; }
     
     [BsonElement("owner_id")]
     [JsonPropertyName("owner_id")]

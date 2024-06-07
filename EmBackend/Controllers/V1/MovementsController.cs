@@ -1,6 +1,7 @@
 using Asp.Versioning;
 using EmBackend.Entities;
 using EmBackend.Mappers;
+using EmBackend.Models.Helpers;
 using EmBackend.Models.Movements.Params;
 using EmBackend.Models.Movements.Requests;
 using EmBackend.Models.Movements.Responses;
@@ -133,7 +134,7 @@ public class MovementsController: ControllerBase
     }
     
     [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteMovement(string id)
+    public async Task<ActionResult<MessageResponse>> DeleteMovement(string id)
     {
         var idValidationResult = _modelValidation.ObjectIdValidator.Validate(id);
         if (idValidationResult == null) { return StatusCode(500); }
@@ -145,8 +146,9 @@ public class MovementsController: ControllerBase
         if (filter == null) { return BadRequest("The provided data could not be utilized for filter."); }
 
         var deleteResult = await _movementRepository.Delete(filter);
-        if (deleteResult == null) { return Problem("Movement could not be updated."); }
+        if (deleteResult == null) { return Problem("Movement could not be deleted."); }
+        if (deleteResult.DeletedCount == 0) { return BadRequest("Movement could not be deleted."); }
 
-        return Ok("Movement deleted.");
+        return Ok(new MessageResponse("Movement was deleted."));
     }
 }
